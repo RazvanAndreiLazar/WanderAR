@@ -1,4 +1,5 @@
 using Assets.Scripts.Domain.DTOs;
+using Assets.Scripts.Domain.Models;
 using Assets.Scripts.Services;
 using Assets.Scripts.UIElements;
 using System.Collections;
@@ -63,6 +64,9 @@ public class UILandmarks : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (AppStates.UserState == UserState.None)
+            enabled = false;
+
         SetupTiles();
 
 
@@ -136,7 +140,10 @@ public class UILandmarks : MonoBehaviour
 
     private IEnumerator ManipulateList(bool globalLandmarks, bool ownLandmarks)
     {
-        if (SessionVariables.IsUsedAsGuest)
+        if (AppStates.UserState == UserState.None)
+            yield break;
+
+        if (AppStates.UserState == UserState.Guest)
         {
             if (globalLandmarks)
                 yield return _landmarkService.GetAllAvailableLandmarksGuest(
@@ -244,7 +251,15 @@ public class UILandmarks : MonoBehaviour
 
     public void OnLandmarkSelected(NoModelLandmarkDTO selectedLandmark)
     {
-        SessionVariables.Landmarks = new() { selectedLandmark };
-        SceneManager.LoadScene(ScenesManager.NAVIGATION);
+        StartCoroutine(_landmarkService.GetLandmark(selectedLandmark.Id, 
+            (lmk) => {
+                SessionVariables.Landmarks = new() { Landmark.FromLandmarkDTO(lmk) };
+                AppStates.NavigationState = NavigationState.OneByOne;
+                SceneManager.LoadScene(ScenesManager.NAVIGATION);
+            },
+            (err) => { }
+            ));
+
+        //SessionVariables.Landmarks = new() { selectedLandmark };
     }
 }

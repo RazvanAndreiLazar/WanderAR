@@ -31,6 +31,9 @@ public class UIMenu : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (AppStates.UserState == UserState.None)
+            gameObject.SetActive(false);
+
         buttons = new GameObject[] { SettingsButton, LandmarkButton, ProxyButton, RouteButton };
         pannels = new GameObject[] { SettingsPannel, LandmarkPannel, ProxyPannel, RoutePannel };
         tabCorespondence = new Dictionary<Tabs, KeyValuePair<GameObject, GameObject>>()

@@ -43,7 +43,7 @@ namespace Assets.Scripts.Services
             );
         }
 
-        public IEnumerator Registre(string email, string password, Action callback, Action<ErrorDTO> errorCallback)
+        public IEnumerator Register(string email, string password, Action callback, Action<ErrorDTO> errorCallback)
         {
             var user = new LogginRegisterUserDTO { Email = email, Password = password };
 
@@ -69,7 +69,7 @@ namespace Assets.Scripts.Services
         {
             SessionVariables.SessionToken = "";
             SessionVariables.LoggedUser = null;
-            SessionVariables.IsUsedAsGuest = false;
+            AppStates.UserState = UserState.None;
         }
     }
 }

@@ -21,7 +21,21 @@ public class UISettings : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        SetEmailText(SessionVariables.IsUsedAsGuest ? "Logged in as GUEST" : SessionVariables.LoggedUser.Email);
+        switch (AppStates.UserState)
+        {
+            case UserState.Logged:
+                SetEmailText(SessionVariables.LoggedUser.Email);
+                break;
+            case UserState.Guest:
+                SetEmailText("Logged in as GUEST");
+                break;
+            case UserState.None:
+                this.enabled = false;
+                return;
+            default:
+                break;
+        }
+
         logoutButton.onClick.AddListener(OnLogoutClick);
     }
 

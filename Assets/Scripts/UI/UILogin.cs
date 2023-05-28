@@ -40,6 +40,8 @@ public class UILogin : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        AppStates.UserState = UserState.None;
+
         if (SessionVariables.SessionToken != "")
         {
             GetLoggedUser();
@@ -109,20 +111,27 @@ public class UILogin : MonoBehaviour
             throw new System.Exception("Password cannot contain special characters: (){}[]|`¬¦! \"£$% ^&*<>:;#~_-+=,@");
 
         StartCoroutine(_authenticationService.Login(loginEmailInputField.text, loginPasswordInputField.text, 
-            () => SceneManager.LoadScene(ScenesManager.MENU), 
+            () => {
+                AppStates.UserState = UserState.Logged;
+                SceneManager.LoadScene(ScenesManager.MENU);
+            },
             (err) => SetErrorText(GetErrorString(err))
         ));
     }
 
     public void LoginAsGuest()
     {
-        SessionVariables.IsUsedAsGuest = true;
+        AppStates.UserState = UserState.Guest;
         SceneManager.LoadScene(ScenesManager.MENU);
     }
 
     public void GetLoggedUser()
     {
-        StartCoroutine(_authenticationService.GetLoggedUser(() => SceneManager.LoadScene(ScenesManager.MENU)));
+        StartCoroutine(_authenticationService.GetLoggedUser(
+            () => {
+                AppStates.UserState = UserState.Logged;
+                SceneManager.LoadScene(ScenesManager.MENU);
+        }));
     }
 
     public void Register()
@@ -134,7 +143,7 @@ public class UILogin : MonoBehaviour
         if (!Regex.IsMatch(registrePasswordInputField.text, @"^[^(){}[\]|`¬¦!""£$%^&*""<>:;#~_\-\+=,@]+$"))
             throw new System.Exception("Password cannot contain special characters: (){}[]|`¬¦! \"£$% ^&*<>:;#~_-+=,@");
 
-        StartCoroutine(_authenticationService.Registre(loginEmailInputField.text, loginPasswordInputField.text,
+        StartCoroutine(_authenticationService.Register(loginEmailInputField.text, loginPasswordInputField.text,
             () => SwitchToLogin(),
             (err) => SetErrorText(GetErrorString(err))
         ));
