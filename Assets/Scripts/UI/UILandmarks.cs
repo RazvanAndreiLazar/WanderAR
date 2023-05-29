@@ -46,7 +46,7 @@ public class UILandmarks : MonoBehaviour
 
     private int page = 1;
 
-    private LandmarkListElement[] _listElemets;
+    private LandmarkListElement[] _listElements;
 
     private Image myLandmarkImg;
     private Image globalLandmarkImg;
@@ -221,13 +221,13 @@ public class UILandmarks : MonoBehaviour
         {
             var listIndex = i + (page - 1) * noTilesPerPage;
 
-            _listElemets[i].landmark = listIndex < _landmarkList.Count ? _landmarkList[i] : null;
+            _listElements[i].Landmark = listIndex < _landmarkList.Count ? _landmarkList[listIndex] : null;
         }
     }
 
     private void SetupTiles()
     {
-        _listElemets = new LandmarkListElement[noTilesPerPage];
+        _listElements = new LandmarkListElement[noTilesPerPage];
 
         for (int i = 0; i < noTilesPerPage; i++)
         {
@@ -240,12 +240,12 @@ public class UILandmarks : MonoBehaviour
             landmarkObj.transform.Translate(0, -180 * i, 0);
 
             // linking landmark
-            _listElemets[i] = landmarkObj.AddComponent<LandmarkListElement>();
-            _listElemets[i].disabledTrashCan = disabledTrashCan;
+            _listElements[i] = landmarkObj.AddComponent<LandmarkListElement>();
+            _listElements[i].disabledTrashCan = disabledTrashCan;
 
             // button functionality
             landmarkObj.GetComponent<Button>().onClick
-                .AddListener(() => OnLandmarkSelected(_listElemets[j].landmark));
+                .AddListener(() => OnLandmarkSelected(_listElements[j].Landmark));
         }
     }
 
@@ -254,7 +254,7 @@ public class UILandmarks : MonoBehaviour
         StartCoroutine(_landmarkService.GetLandmark(selectedLandmark.Id, 
             (lmk) => {
                 SessionVariables.Landmarks = new() { Landmark.FromLandmarkDTO(lmk) };
-                AppStates.NavigationState = NavigationState.OneByOne;
+                AppStates.NavigationState = NavigationState.Singular;
                 SceneManager.LoadScene(ScenesManager.NAVIGATION);
             },
             (err) => { }

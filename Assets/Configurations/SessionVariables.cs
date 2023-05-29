@@ -28,7 +28,9 @@ public static class SessionVariables
     public static User LoggedUser { get; set; } = null;
 
     private static List<Landmark> _landmarks = new();
-    public static List<Landmark> Landmarks { get => _landmarks; set {
+    public static List<Landmark> Landmarks { 
+        get => _landmarks; 
+        set {
             NavigationLandmarkIndex = 0;
             _landmarks = value;
         } 

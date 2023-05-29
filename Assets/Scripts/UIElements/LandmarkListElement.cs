@@ -7,13 +7,13 @@ using UnityEngine;
 
 namespace Assets.Scripts.UIElements
 {
-    public class LandmarkListElement : MonoBehaviour
+    public class LandmarkListElement : ListElementBase<NoModelLandmarkDTO>
     {
-        public NoModelLandmarkDTO landmark = null;
-
-        public GameObject disabledTrashCan = null;
-
-        private Transform normalParent;
+        public NoModelLandmarkDTO Landmark 
+        { 
+            get => item; 
+            set { item = value; } 
+        }
 
         private TMP_Text nameTxt;
         private TMP_Text locationTxt;
@@ -25,36 +25,19 @@ namespace Assets.Scripts.UIElements
         private const int DISTANCE_POS = 2;
         #endregion
 
-        private void Start()
+        protected override void StartSetup()
         {
-            normalParent = gameObject.transform.parent;
 
             nameTxt = transform.GetChild(NAME_POS).gameObject.GetComponent<TMP_Text>();
             locationTxt = transform.GetChild(LOCATION_POS).gameObject.GetComponent<TMP_Text>();
             distanceTxt = transform.GetChild(DISTANCE_POS).gameObject.GetComponent<TMP_Text>();
         }
 
-        private void Update()
+        protected override void UpdateBehaviour()
         {
-            if (landmark == null)
-                Hide();
-            else
-            {
-                Show();
-                nameTxt.text = landmark.Name;
-                locationTxt.text = landmark.City;
-                distanceTxt.text = $"{landmark.Latitude} {landmark.Longitude} {landmark.Altitude}";
-            }
-        }
-
-        private void Hide()
-        {
-            gameObject.transform.SetParent(disabledTrashCan.transform, false);
-        }
-
-        private void Show()
-        {
-            gameObject.transform.SetParent(normalParent, false);
+            nameTxt.text = item.Name;
+            locationTxt.text = item.City;
+            distanceTxt.text = $"{item.Latitude} {item.Longitude} {item.Altitude}";
         }
     }
 }

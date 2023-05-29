@@ -99,7 +99,7 @@ namespace Assets.Scripts.Utils
             ProcessResults(request, callback, errorCallback);
         }
      
-        public static IEnumerator Delete<T>(string endpoint, string authToken = null, Action<T> callback = null, Action<ErrorDTO> errorCallback = null) where T : SerializableBase<T>
+        public static IEnumerator Delete(string endpoint, string authToken = null, Action callback = null, Action<ErrorDTO> errorCallback = null)
         {
             UnityWebRequest request = UnityWebRequest.Delete(baseUrl + endpoint);
             request.SetRequestHeader("Accept", "*/*");
@@ -109,7 +109,15 @@ namespace Assets.Scripts.Utils
 
             yield return request.SendWebRequest();
 
-            ProcessResults(request, callback, errorCallback);
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                callback?.Invoke();
+            }
+            else
+            {
+                Debug.Log(request.error);
+                errorCallback?.Invoke(ErrorDTO.Deserialize(request.downloadHandler.text));
+            }
         }
     }
 }

@@ -20,25 +20,28 @@ public class NavManager : MonoBehaviour
             case NavigationState.Proximity:
                 SetupProximityNav();
                 break;
-            case NavigationState.OneByOne:
-                SetupOneByOneNav();
+            case NavigationState.Singular:
+                SetupSingularNav();
                 break;
             case NavigationState.AllAtOnce:
+                break;
+            case NavigationState.OneByOne:
+                SetupOneByOneNav();
                 break;
             default:
                 break;
         }
     }
 
-    private void SetupOneByOneNav()
+    private void SetupSingularNav()
     {
-        var oneByOneNav = gameObject.AddComponent<OneByOneNav>();
-        oneByOneNav.camera = camera;
-        oneByOneNav.landmarkMaterial = landmarkMaterial;
-        oneByOneNav.landmarkPlaceholder = landmarkPlaceholder;
+        var singularNav = gameObject.AddComponent<SingularNav>();
+        singularNav.camera = camera;
+        singularNav.landmarkMaterial = landmarkMaterial;
+        singularNav.landmarkPlaceholder = landmarkPlaceholder;
 
-        oneByOneNav.StartNavigating();
-        activeNavigation = oneByOneNav;
+        singularNav.StartNavigating();
+        activeNavigation = singularNav;
     }
 
     private void SetupProximityNav()
@@ -50,6 +53,41 @@ public class NavManager : MonoBehaviour
 
         proximityNav.StartNavigating();
         activeNavigation = proximityNav;
+    }
+
+    private void SetupOneByOneNav()
+    {
+        var allAtOnceNav = gameObject.AddComponent<AllAtOnceNav>();
+        allAtOnceNav.camera = camera;
+        allAtOnceNav.landmarkMaterial = landmarkMaterial;
+        allAtOnceNav.landmarkPlaceholder = landmarkPlaceholder;
+
+        var oneByOneNav = gameObject.AddComponent<OneByOneNav>();
+        oneByOneNav.camera = camera;
+        oneByOneNav.landmarkMaterial = landmarkMaterial;
+        oneByOneNav.landmarkPlaceholder = landmarkPlaceholder;
+        oneByOneNav.StartNavigating();
+
+        activeNavigation = oneByOneNav;
+    }
+
+    public void SwitchRouteNavigationMode()
+    {
+        var allAtOnceNav = gameObject.GetComponent<AllAtOnceNav>();
+        var oneByOneNav = gameObject.GetComponent<OneByOneNav>();
+
+        if (activeNavigation == allAtOnceNav)
+        {
+            allAtOnceNav.StopNavigating();
+            oneByOneNav.StartNavigating();
+            activeNavigation = oneByOneNav;
+        } 
+        else if (activeNavigation == oneByOneNav)
+        {
+            oneByOneNav.StopNavigating();
+            allAtOnceNav.StartNavigating();
+            activeNavigation = allAtOnceNav;
+        }
     }
 
     public void StopNavigating()

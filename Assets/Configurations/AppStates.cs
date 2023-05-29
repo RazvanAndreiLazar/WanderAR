@@ -9,7 +9,7 @@ public enum AppState
 
 public enum NavigationState
 {
-    None, Proximity, OneByOne, AllAtOnce
+    None, Proximity, Singular, OneByOne, AllAtOnce
 }
 
 public enum UserState
