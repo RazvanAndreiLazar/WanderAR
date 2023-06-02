@@ -29,6 +29,8 @@ public class UIAddUpdateRoute : MonoBehaviour
     public Button prevPageButton;
 
     public GameObject landmarkContainer;
+
+    public GameObject AddLandmarksScreen;
     #endregion
 
     private const int NO_TILES_PER_PAGE = 10;
@@ -95,6 +97,11 @@ public class UIAddUpdateRoute : MonoBehaviour
     {
         nameTxt.text = route.Name;
         _route = route;
+        OnListModified();
+    }
+
+    private void OnListModified()
+    {
         page = 1;
         OnPageChanged();
     }
@@ -111,7 +118,7 @@ public class UIAddUpdateRoute : MonoBehaviour
             _listElements[i].Landmark = listIndex < _route.Landmarks.Count ? _route.Landmarks[listIndex] : null;
             _listElements[i].SetDownButtonEnabled(listIndex < _route.Landmarks.Count - 1);
             _listElements[i].SetUpButtonEnabled(listIndex > 0);
-            _listElements[i].upAction = () =>
+            _listElements[i].UpAction = () =>
             {
                 if (listIndex > 0)
                 {
@@ -120,7 +127,7 @@ public class UIAddUpdateRoute : MonoBehaviour
                     if (j > 0) _listElements[j - 1].Landmark = _route.Landmarks[listIndex - 1];
                 }
             };
-            _listElements[i].downAction = () =>
+            _listElements[i].DownAction = () =>
             {
                 if (listIndex < _route.Landmarks.Count - 1)
                 {
@@ -128,6 +135,11 @@ public class UIAddUpdateRoute : MonoBehaviour
                     _listElements[j].Landmark = _route.Landmarks[listIndex];
                     if (j < NO_TILES_PER_PAGE - 1) _listElements[j + 1].Landmark = _route.Landmarks[listIndex + 1];
                 }
+            };
+            _listElements[i].DeleteAction = () =>
+            {
+                _route.Landmarks.RemoveAt(j);
+                OnListModified();
             };
         }
     }
@@ -222,7 +234,22 @@ public class UIAddUpdateRoute : MonoBehaviour
 
     private void OnAddLandmarkPressed()
     {
-        Debug.Log("Add landmark pressed");
+        AddLandmarksScreen.SetActive(true);
+        AddLandmarksScreen.GetComponent<UIAddLandmarkToRoute>().StartAddingLandmarks(
+            landmarks => {
+                landmarks.ForEach(
+                    lmk =>
+                    {
+                        _route.Landmarks.Add(new RouteLandmarkDTO
+                        {
+                            Id = lmk.Id,
+                            Name = lmk.Name
+                        });
+                    }
+                );
+                OnListModified();
+            }
+        );
     }
 
     private void OnSavePressed()

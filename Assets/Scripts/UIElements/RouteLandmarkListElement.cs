@@ -5,6 +5,7 @@ using Assets.Scripts.Domain.DTOs;
 using TMPro;
 using UnityEngine.UI;
 using System;
+using UnityEngine.Events;
 
 namespace Assets.Scripts.UIElements
 {
@@ -16,13 +17,15 @@ namespace Assets.Scripts.UIElements
             set { item = value; }
         }
 
-        public Action upAction;
-        public Action downAction;
+        public Action UpAction;
+        public Action DownAction;
+        public Action DeleteAction;
 
         private TMP_Text nameTxt;
 
         private Button upButton;
         private Button downButton;
+        private Button deleteButton;
 
 
         #region PRIVATE CONSTS
@@ -31,17 +34,22 @@ namespace Assets.Scripts.UIElements
         private const int NAME_POS = 2;
         #endregion
 
-        private void UpAction() => upAction.Invoke();
-        private void DownAction() => downAction.Invoke();
+        private void _UpAction() => UpAction.Invoke();
+        private void _DownAction() => DownAction.Invoke();
+        private void _DeleteAction() => DeleteAction.Invoke();
 
         protected override void StartSetup()
         {
-            nameTxt = transform.GetChild(NAME_POS).gameObject.GetComponent<TMP_Text>();
-            upButton = transform.GetChild(UP_POS).gameObject.GetComponent<Button>();
-            downButton = transform.GetChild(DOWN_POS).gameObject.GetComponent<Button>();
+            var topView = transform.GetChild(1);
 
-            upButton.onClick.AddListener(UpAction);
-            downButton.onClick.AddListener(DownAction);
+            nameTxt = topView.transform.GetChild(NAME_POS).gameObject.GetComponent<TMP_Text>();
+            upButton = topView.transform.GetChild(UP_POS).gameObject.GetComponent<Button>();
+            downButton = topView.transform.GetChild(DOWN_POS).gameObject.GetComponent<Button>();
+
+            gameObject.GetComponent<SwipeToAction>().SwipeAction = _ => _DeleteAction();
+
+            upButton.onClick.AddListener(_UpAction);
+            downButton.onClick.AddListener(_DownAction);
         }
 
         protected override void UpdateBehaviour()

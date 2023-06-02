@@ -21,14 +21,20 @@ public class UINavigation : MonoBehaviour
     public Button prevLandmarkBut;
     public Button nextLandmarkBut;
     public Button switchNavBut;
+    public InputLandmarkName inputLandmarkName;
 
     public NavManager navManager;
 
     private Landmark trackedLandmark;
 
+
     // Start is called before the first frame update
     void Start()
     {
+        inputLandmarkName.OnClosed = () =>
+        {
+
+        };
 
         switch (AppStates.NavigationState)
         {
@@ -111,7 +117,8 @@ public class UINavigation : MonoBehaviour
 
     public void DropPin()
     {
-
+        inputLandmarkName.gameObject.SetActive(true);
+        inputLandmarkName.Focus();
     }
 
     public void PreviousLandmark()

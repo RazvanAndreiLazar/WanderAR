@@ -21,15 +21,12 @@ namespace Assets.Scripts.UIElements
         private TMP_Text nameTxt;
         private TMP_Text infoTxt;
 
-        private Button updateButton;
-        private Button deleteButton;
-
         #region PRIVATE CONSTS
         private const int NAME_POS = 0;
         private const int INFO_POS = 1;
-        private const int UPDATE_POS = 2;
-        private const int DELETE_POS = 3;
         #endregion
+
+        private SwipeToActionDouble swipe;
 
         private void UpdateRoute()
         {
@@ -45,13 +42,15 @@ namespace Assets.Scripts.UIElements
 
         protected override void StartSetup()
         {
-            nameTxt = transform.GetChild(NAME_POS).gameObject.GetComponent<TMP_Text>();
-            infoTxt = transform.GetChild(INFO_POS).gameObject.GetComponent<TMP_Text>();
-            updateButton = transform.GetChild(UPDATE_POS).gameObject.GetComponent<Button>();
-            deleteButton = transform.GetChild(DELETE_POS).gameObject.GetComponent<Button>();
+            var topView = transform.GetChild(1);
 
-            updateButton.onClick.AddListener(UpdateRoute);
-            deleteButton.onClick.AddListener(DeleteRoute);
+            nameTxt = topView.transform.GetChild(NAME_POS).gameObject.GetComponent<TMP_Text>();
+            infoTxt = topView.transform.GetChild(INFO_POS).gameObject.GetComponent<TMP_Text>();
+
+            swipe = gameObject.GetComponent<SwipeToActionDouble>();
+
+            swipe.RightSwipeAction = _ => UpdateRoute();
+            swipe.LeftSwipeAction = _ => DeleteRoute();
         }
 
         protected override void UpdateBehaviour()

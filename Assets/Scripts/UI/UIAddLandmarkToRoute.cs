@@ -3,66 +3,107 @@ using Assets.Scripts.Domain.Models;
 using Assets.Scripts.Services;
 using Assets.Scripts.UIElements;
 using Assets.Scripts.Utils;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using static FilterSortDropdown;
 
-public class UILandmarks : MonoBehaviour
+public class UIAddLandmarkToRoute : MonoBehaviour
 {
 
-    public int noTilesPerPage = 10;
-
     #region PUBLIC GAME OBJECTS
-
-    public GameObject landmarkContainer;
-    public GameObject landmarkTilePrefab;
+    public Button addButton;
+    public TMP_Text addButtonTxt;
+    public Button backButton;
 
     public Button nextPageButton;
     public Button prevPageButton;
 
-    public GameObject disabledTrashCan;
+    public GameObject landmarkContainer;
 
     public GameObject dropdown;
     public GameObject searchbar;
     #endregion
 
-    #region PRIVATE VARIABLES
+    private List<LandmarkWithDistance> landmarkList = new();
+    private List<LandmarkWithDistance> _landmarkList = new();
+    private HashSet<int> _selectedLandmarks = new();
 
-    private bool isDropdownVisible = false;
+    private int noTilesPerPage;
+    private RouteLandmarkAddListElement[] _listElements;
+
+    private LandmarkService _landmarkService = LandmarkService.Instance;
 
     private int page = 1;
 
-    private LandmarkListElement[] _listElements;
+    private int selectedCount;
+    public int SelectedCount
+    {
+        get { return selectedCount; }
+        set { 
+            selectedCount = value;
+            if (selectedCount > 0)
+            {
+                addButton.interactable = true;
+                addButtonTxt.text = $"Add ({value})";
+            }
+            else
+            {
+                addButton.interactable = false;
+                addButtonTxt.text = "Add";
+            }
+        }
+    }
 
-    private LandmarkService _landmarkService = LandmarkService.Instance;
-    private List<LandmarkWithDistance> landmarkList = new();
-    private List<LandmarkWithDistance> _landmarkList = new();
 
+    private Action<List<NoModelLandmarkDTO>> actionCompleteCallback;
 
     private float lastDistanceUpdate;
     private const float DISTANCE_UPDATE_DELTA = 10000;
-    #endregion
-
     // Start is called before the first frame update
     void Start()
     {
-        if (AppStates.UserState == UserState.None)
-            enabled = false;
+        noTilesPerPage = landmarkContainer.transform.childCount;
+        _listElements = new RouteLandmarkAddListElement[noTilesPerPage];
 
-        SetupTiles();
+        SelectedCount = 0;
 
-        var dropdownScript = dropdown.GetComponent<FilterSortDropdown>();
+        for (int i = 0; i < landmarkContainer.transform.childCount; i++)
+        {
+            var j = i;
+            _listElements[i] = landmarkContainer.transform.GetChild(i).GetComponent<RouteLandmarkAddListElement>();
+            _listElements[i].SetOnClickAction(
+                lmk =>
+                { 
+                    if (_selectedLandmarks.Contains(lmk.Landmark.Id))
+                    {
+                        _listElements[j].IsSelected = false;
+                        _selectedLandmarks.Remove(lmk.Landmark.Id);
+                        SelectedCount--;
+                    }
+                    else
+                    {
+                        _listElements[j].IsSelected = !_listElements[j].IsSelected;
+                        _selectedLandmarks.Add(lmk.Landmark.Id);
+                        SelectedCount++;
+                    }
+                });
+        }
+
         searchbar.GetComponent<Searchbar>().OnSearchTextChanged = OnSearchTextChanged;
 
-        OnFilterChanged(dropdownScript.ActiveFilters);
+        var dropdownScript = dropdown.GetComponent<FilterSortDropdown>();
 
         dropdownScript.OnFilterChanged = OnFilterChanged;
         dropdownScript.OnSortChanged = OnSortChanged;
 
+        addButton.onClick.AddListener(OnAddPressed);
+        backButton.onClick.AddListener(OnBackPressed);
         nextPageButton.onClick.AddListener(NextPage);
         prevPageButton.onClick.AddListener(PrevPage);
     }
@@ -74,12 +115,28 @@ public class UILandmarks : MonoBehaviour
         nextPageButton.interactable = page - 1 < (landmarkList.Count - 1) / noTilesPerPage;
     }
 
+    public void StartAddingLandmarks(Action<List<NoModelLandmarkDTO>> callback)
+    {
+        OnFilterChanged(dropdown.GetComponent<FilterSortDropdown>().ActiveFilters);
+        actionCompleteCallback = callback;
+    }
+
     private void OnFilterChanged(HashSet<Filters> filters)
     {
         var global = filters.Contains(Filters.Global);
         var own = filters.Contains(Filters.Own);
 
         StartCoroutine(ManipulateList(global, own));
+    }
+
+    private void OnSearchTextChanged(string txt)
+    {
+        if (txt == "" || txt == null)
+            landmarkList = _landmarkList;
+        else
+            landmarkList = _landmarkList.FindAll(l => l.Landmark.Name.ToLower().StartsWith(txt.ToLower()));
+
+        OnSortChanged(dropdown.GetComponent<FilterSortDropdown>().SortMode);
     }
 
     private void OnSortChanged(Sorts sort)
@@ -105,16 +162,6 @@ public class UILandmarks : MonoBehaviour
         }
 
         OnListOfLandmarksUpdated();
-    }
-
-    private void OnSearchTextChanged(string txt)
-    {
-        if (txt == "" || txt == null)
-            landmarkList = _landmarkList; 
-        else
-            landmarkList = _landmarkList.FindAll(l => l.Landmark.Name.ToLower().StartsWith(txt.ToLower()));
-
-        OnSortChanged(dropdown.GetComponent<FilterSortDropdown>().SortMode);
     }
 
     private void UpdateLandmarkDistances()
@@ -174,9 +221,7 @@ public class UILandmarks : MonoBehaviour
         lastDistanceUpdate = Time.time;
 
         OnSearchTextChanged(searchbar.GetComponent<Searchbar>().SearchText);
-        //OnSortChanged(dropdown.GetComponent<FilterSortDropdown>().SortMode);
     }
-
 
     private void OnListOfLandmarksUpdated()
     {
@@ -189,80 +234,64 @@ public class UILandmarks : MonoBehaviour
 
     }
 
-    public void NextPage()
-    {
-        page++;
-        OnPageChanged();
-    }
-
-    public void PrevPage()
-    {
-        page--;
-        OnPageChanged();
-    }
-
     private void OnPageChanged()
     {
 
         for (int i = 0; i < noTilesPerPage; i++)
         {
             var listIndex = i + (page - 1) * noTilesPerPage;
+            var j = i;
 
-            _listElements[i].Landmark = listIndex < landmarkList.Count ? landmarkList[listIndex] : null;
-        }
-    }
-
-    private void SetupTiles()
-    {
-        _listElements = new LandmarkListElement[noTilesPerPage];
-
-        for (int i = 0; i < noTilesPerPage; i++)
-        {
-            int j = i;
-
-            var landmarkObj = Instantiate(landmarkTilePrefab);
-            landmarkObj.transform.SetParent(landmarkContainer.transform, false);
-
-            // position
-            landmarkObj.transform.Translate(0, -180 * i, 0);
-
-            // linking landmark
-            _listElements[i] = landmarkObj.AddComponent<LandmarkListElement>();
-            _listElements[i].disabledTrashCan = disabledTrashCan;
-
-            // button functionality
-            landmarkObj.GetComponent<Button>().onClick
-                .AddListener(() => {
-                    OnLandmarkSelected(_listElements[j].Landmark);
-                });
-
-            // swipe functionality
-            var swipe = landmarkObj.GetComponent<SwipeToAction>();
-            swipe.SwipeAction = _ => DeleteLandmark(_listElements[j].Landmark);
-        }
-    }
-
-    public void OnLandmarkSelected(LandmarkWithDistance selectedLandmark)
-    {
-        StartCoroutine(_landmarkService.GetLandmark(selectedLandmark.Landmark.Id, 
-            (lmk) => {
-                SessionVariables.Landmarks = new() { Landmark.FromLandmarkDTO(lmk) };
-                AppStates.NavigationState = NavigationState.Singular;
-                SceneManager.LoadScene(ScenesManager.NAVIGATION);
-            },
-            (err) => { }
-            ));
-
-        //SessionVariables.Landmarks = new() { selectedLandmark };
-    }
-
-    private void DeleteLandmark(LandmarkWithDistance landmark)
-    {
-        StartCoroutine(_landmarkService.DeleteLandmark(landmark.Landmark.Id,
-            () =>
+            if (listIndex < landmarkList.Count)
             {
-                landmarkList.Remove(landmark);
-                OnListOfLandmarksUpdated();
-            }, err => { }));
+                _listElements[i].Landmark = landmarkList[listIndex];
+                _listElements[i].IsSelected = _selectedLandmarks.Contains(landmarkList[listIndex].Landmark.Id);
+            }
+            else
+            {
+                _listElements[i].Landmark = null;
+            }
+        }
     }
+
+    private void Exit()
+    {
+        _selectedLandmarks.Clear();
+        SelectedCount = 0;
+
+        searchbar.GetComponent<Searchbar>().ResetValues();
+        dropdown.GetComponent<FilterSortDropdown>().ResetValues();
+
+        gameObject.SetActive(false);
+    }
+
+    #region Button OnClicks
+    private void NextPage()
+    {
+        page++;
+        OnPageChanged();
+    }
+
+    private void PrevPage()
+    {
+        page--;
+        OnPageChanged();
+    }
+
+    private void OnBackPressed()
+    {
+        Exit();
+    }
+
+    private void OnAddPressed()
+    {
+        actionCompleteCallback.Invoke(
+            landmarkList
+            .FindAll(x => _selectedLandmarks.Contains(x.Landmark.Id))
+            .ConvertAll(l => l.Landmark.ToNoModelLandmarkDTO())
+        );
+        Exit();
+    }
+
+    #endregion
 }

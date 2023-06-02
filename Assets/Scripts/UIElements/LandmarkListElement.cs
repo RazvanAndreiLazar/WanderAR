@@ -1,15 +1,16 @@
 using Assets.Scripts.Domain.DTOs;
+using Assets.Scripts.Domain.Models;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-
+using UnityEngine.UI;
 
 namespace Assets.Scripts.UIElements
 {
-    public class LandmarkListElement : ListElementBase<NoModelLandmarkDTO>
+    public class LandmarkListElement : ListElementBase<LandmarkWithDistance>
     {
-        public NoModelLandmarkDTO Landmark 
+        public LandmarkWithDistance Landmark 
         { 
             get => item; 
             set { item = value; } 
@@ -25,19 +26,30 @@ namespace Assets.Scripts.UIElements
         private const int DISTANCE_POS = 2;
         #endregion
 
+        private SwipeToAction swipeBehaviour;
+
         protected override void StartSetup()
         {
+            var topView = transform.GetChild(1);
 
-            nameTxt = transform.GetChild(NAME_POS).gameObject.GetComponent<TMP_Text>();
-            locationTxt = transform.GetChild(LOCATION_POS).gameObject.GetComponent<TMP_Text>();
-            distanceTxt = transform.GetChild(DISTANCE_POS).gameObject.GetComponent<TMP_Text>();
+            nameTxt = topView.transform.GetChild(NAME_POS).gameObject.GetComponent<TMP_Text>();
+            locationTxt = topView.transform.GetChild(LOCATION_POS).gameObject.GetComponent<TMP_Text>();
+            distanceTxt = topView.transform.GetChild(DISTANCE_POS).gameObject.GetComponent<TMP_Text>();
+
+
+            var but = gameObject.GetComponent<Button>();
+            swipeBehaviour = gameObject.GetComponent<SwipeToAction>();
         }
 
         protected override void UpdateBehaviour()
         {
-            nameTxt.text = item.Name;
-            locationTxt.text = item.City;
-            distanceTxt.text = $"{item.Latitude} {item.Longitude} {item.Altitude}";
+            nameTxt.text = item.Landmark.Name;
+            locationTxt.text = item.Landmark.City;
+
+            distanceTxt.text = item.Distance < 10000 ? $"{Mathf.Floor(item.Distance)}m" : $"{Mathf.Floor(item.Distance/1000)}km";
+             
+            //swipeBehaviour.enabled = Landmark.Id == SessionVariables.LoggedUser.Id;
+
         }
     }
 }

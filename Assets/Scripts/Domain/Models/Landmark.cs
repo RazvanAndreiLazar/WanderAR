@@ -32,5 +32,34 @@ namespace Assets.Scripts.Domain.Models
 
             return lmk;
         }
+        public static Landmark FromNoModelLandmarkDTO(NoModelLandmarkDTO landmarkDTO)
+        {
+            var lmk = new Landmark();
+            lmk.Id = landmarkDTO.Id;
+            lmk.Name = landmarkDTO.Name;
+            lmk.City = landmarkDTO.City;
+            lmk.Coordinates = new WorldCoordinates(landmarkDTO.Latitude, landmarkDTO.Longitude, landmarkDTO.Altitude);
+            lmk.Size = new Vector3(landmarkDTO.SizeX, landmarkDTO.SizeY, landmarkDTO.SizeZ);
+            lmk.UserId = landmarkDTO.UserId;
+
+            return lmk;
+        }
+
+        public NoModelLandmarkDTO ToNoModelLandmarkDTO()
+        {
+            return new NoModelLandmarkDTO
+            {
+                Id = Id,
+                Name = Name,
+                City = City,
+                Latitude = Coordinates.Latitude,
+                Longitude = Coordinates.Longitude,
+                Altitude = Coordinates.Altitude,
+                SizeX = Size.x,
+                SizeY = Size.y,
+                SizeZ = Size.z,
+                UserId = UserId
+            };
+        }
     }
 }

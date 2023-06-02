@@ -56,5 +56,22 @@ namespace Assets.Scripts.Services
                 yield return WebUtils.Get($"{BASE_ENDPOINT}/user/proximity?{paramString}", SessionVariables.SessionToken, 
                     callback: callback, errorCallback: errorCallback);
         }
+
+        public IEnumerator DropPin(string name, Action<NoModelLandmarkDTO> callback, Action<ErrorDTO> errorCallback)
+        {
+            yield return WebUtils.Post(BASE_ENDPOINT, new LandmarkAddDTO
+            {
+
+                Name = name,
+                Latitude = LocationManager.Location.Latitude,
+                Longitude = LocationManager.Location.Longitude,
+                Altitude = LocationManager.Location.Altitude
+            }, SessionVariables.SessionToken, callback, errorCallback);
+        }
+    
+        public IEnumerator DeleteLandmark(int landmarkId, Action callback, Action<ErrorDTO> errorCallback)
+        {
+            yield return WebUtils.Delete($"{BASE_ENDPOINT}/{landmarkId}", SessionVariables.SessionToken, callback, errorCallback);
+        }
     }
 }
