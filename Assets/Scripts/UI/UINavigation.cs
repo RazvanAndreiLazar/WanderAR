@@ -71,6 +71,7 @@ public class UINavigation : MonoBehaviour
 
                 prevLandmarkBut.enabled = true;
                 nextLandmarkBut.enabled = true;
+                SetLandmarkButtonsInteractibility();
                 prevLandmarkBut.onClick.AddListener(PreviousLandmark);
                 nextLandmarkBut.onClick.AddListener(NextLandmark);
                 switchNavBut.onClick.AddListener(SwitchMode);
@@ -122,6 +123,7 @@ public class UINavigation : MonoBehaviour
                 AppStates.NavigationState = NavigationState.None;
                 navManager.StopNavigating();
                 informationPannel?.SetActive(false);
+                routeInformationPannel?.SetActive(false);
             }
             catch (Exception E)
             {
@@ -144,6 +146,8 @@ public class UINavigation : MonoBehaviour
 
         trackedLandmark = SessionVariables.CurrentLandmark;
         routeLandmarkNameTxt.text = trackedLandmark.Name;
+
+        SetLandmarkButtonsInteractibility();
     }
     public void NextLandmark()
     {
@@ -151,7 +155,16 @@ public class UINavigation : MonoBehaviour
 
         trackedLandmark = SessionVariables.CurrentLandmark;
         routeLandmarkNameTxt.text = trackedLandmark.Name;
+
+        SetLandmarkButtonsInteractibility();
     }
+
+    private void SetLandmarkButtonsInteractibility()
+    {
+        prevLandmarkBut.interactable = SessionVariables.NavigationLandmarkIndex > 0;
+        nextLandmarkBut.interactable = SessionVariables.NavigationLandmarkIndex < SessionVariables.Landmarks.Count - 1;
+    }
+
     public void SwitchMode()
     {
         if (AppStates.NavigationState == NavigationState.OneByOne)

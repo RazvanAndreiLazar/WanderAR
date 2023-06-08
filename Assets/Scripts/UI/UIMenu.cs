@@ -61,12 +61,31 @@ public class UIMenu : MonoBehaviour
         }
     }
 
+    private void DeselectAllButtons()
+    {
+        const int INACTIVE_CHILD = 0;
+        const int ACTIVE_CHILD = 1;
+
+        foreach (var button in buttons)
+        {
+            if (button.transform.childCount < 2) continue;
+            button.transform.GetChild(INACTIVE_CHILD).gameObject.SetActive(true);
+            button.transform.GetChild(ACTIVE_CHILD).gameObject.SetActive(false);
+        }
+    }
+
     private void Select(Tabs tab)
     {
+        const int INACTIVE_CHILD = 0;
+        const int ACTIVE_CHILD = 1;
+
         var button = tabCorespondence[tab].Key;
         var pannel = tabCorespondence[tab].Value;
 
-        button.GetComponent<Button>().Select();
+        DeselectAllButtons();
+
+        button.gameObject.transform.GetChild(INACTIVE_CHILD).gameObject.SetActive(false);
+        button.gameObject.transform.GetChild(ACTIVE_CHILD).gameObject.SetActive(true);
 
         HideAllPannels();
 
