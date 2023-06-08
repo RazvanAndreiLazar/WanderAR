@@ -1,4 +1,6 @@
 using Assets.Scripts.Services;
+using Assets.Scripts.Utils;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -48,19 +50,25 @@ public class UIProximity : MonoBehaviour
     {
         if (int.TryParse(maxDistance.text, out int maxDist))
         {
-            SessionVariables.ProximityRange = maxDist;
-            AppStates.NavigationState = NavigationState.Proximity;
-            SceneManager.LoadScene(ScenesManager.NAVIGATION);
+            Action helperAction = () =>
+            {
+                SessionVariables.ProximityRange = maxDist;
+                AppStates.NavigationState = NavigationState.Proximity;
+                SceneManager.LoadScene(ScenesManager.NAVIGATION);
+            };
 
-            //StartCoroutine(_landmarkService.GetProxyLandmarks(maxDist, latitude, longitude, altitude,
-            //    (landmarks) =>
-            //    {
-            //        SessionVariables.Landmarks = new(landmarks);
-            //        AppStates.NavigationState = NavigationState.Proximity;
-            //        SceneManager.LoadScene(ScenesManager.NAVIGATION);
-            //    }, 
-            //    (err) => { }
-            //));
+            if (AppStates.NavigationState != NavigationState.None)
+            {
+                NotificationService.AddDialog("Navigation", "Another navigation is active. Do you want to cancel it and start a new one?", DialogModal.Buttons.CANCEL_OK, helperAction);
+            }
+            else
+            {
+                helperAction.Invoke();
+            }
+        } 
+        else
+        {
+            ErrorUtils.DisplayError("The number input is not valid");
         }
     }
 }

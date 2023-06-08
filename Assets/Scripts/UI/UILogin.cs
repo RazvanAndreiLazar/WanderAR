@@ -37,16 +37,22 @@ public class UILogin : MonoBehaviour
 
     private Color errorBackgroundColor = new Color(1, 0.4f, 0.4f);
 
+    int i = 0;
+
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
+        errorText.text = "1";
         AppStates.UserState = UserState.None;
+        errorText.text = "2";
 
         if (SessionVariables.SessionToken != "")
         {
+            errorText.text = "3";
             GetLoggedUser();
         }
 
+        errorText.text = "5";
         SwitchToLogin();
         errorText.text = "";
 
@@ -123,6 +129,7 @@ public class UILogin : MonoBehaviour
     {
         AppStates.UserState = UserState.Guest;
         SceneManager.LoadScene(ScenesManager.MENU);
+        SetErrorText(ScenesManager.MENU.ToString());
     }
 
     public void GetLoggedUser()

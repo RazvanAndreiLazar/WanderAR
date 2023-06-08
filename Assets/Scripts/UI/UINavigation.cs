@@ -1,5 +1,6 @@
 using Assets.Scripts.Domain.DTOs;
 using Assets.Scripts.Domain.Models;
+using Assets.Scripts.Services;
 using Assets.Scripts.Utils;
 using System;
 using System.Collections;
@@ -35,6 +36,10 @@ public class UINavigation : MonoBehaviour
         {
 
         };
+
+
+        navManager.StartNavigating();
+
 
         switch (AppStates.NavigationState)
         {
@@ -109,10 +114,22 @@ public class UINavigation : MonoBehaviour
 
     public void ExitNavigation()
     {
-        // Set the navigation state back to none and stop the navigation
-        AppStates.NavigationState = NavigationState.None;
-        navManager.StopNavigating();
-        informationPannel?.SetActive(false);
+        NotificationService.AddDialog("Navigation", "Are you sure you want to exit navigation?", DialogModal.Buttons.CANCEL_OK, () =>
+        {
+            // Set the navigation state back to none and stop the navigation
+            try
+            {
+                AppStates.NavigationState = NavigationState.None;
+                navManager.StopNavigating();
+                informationPannel?.SetActive(false);
+            }
+            catch (Exception E)
+            {
+
+                ErrorUtils.DisplayError(E.Message + " " + E.InnerException.Message);
+            }
+        });
+
     }
 
     public void DropPin()

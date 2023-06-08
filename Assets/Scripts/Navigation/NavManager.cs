@@ -1,3 +1,4 @@
+using Assets.Scripts.Utils;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,9 +11,11 @@ public class NavManager : MonoBehaviour
 
     private NavBase activeNavigation;
 
-    // Start is called before the first frame update
-    void Start()
+
+    public void StartNavigating()
     {
+        //ErrorUtils.DisplayError($"In Nav manager start navigaing {AppStates.NavigationState}");
+
         switch (AppStates.NavigationState)
         {
             case NavigationState.None:

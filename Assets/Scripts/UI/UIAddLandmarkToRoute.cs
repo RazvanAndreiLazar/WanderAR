@@ -231,7 +231,7 @@ public class UIAddLandmarkToRoute : MonoBehaviour
 
     private void DisplayError(ErrorDTO error)
     {
-
+        ErrorUtils.DisplayError(error);
     }
 
     private void OnPageChanged()

@@ -1,6 +1,7 @@
 using Assets.Scripts.Domain.DTOs;
 using Assets.Scripts.Services;
 using Assets.Scripts.UIElements;
+using Assets.Scripts.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -33,7 +34,7 @@ public class UIAddUpdateRoute : MonoBehaviour
     public GameObject AddLandmarksScreen;
     #endregion
 
-    private const int NO_TILES_PER_PAGE = 10;
+    private const int NO_TILES_PER_PAGE = 9;
 
     // !! DO NOT ADD TO _route.Landmarks -> create a new one and update I think
     private RouteWithLandmarksDTO _route = null;
@@ -87,9 +88,7 @@ public class UIAddUpdateRoute : MonoBehaviour
     {
         titleTxt.text = "Update route";
         _addOrUpdate = AddOrUpdate.Update;
-        StartCoroutine(_routeService.GetRoute(routeId, UpdateRouteLandmarks,
-            err => { }
-        ));
+        StartCoroutine(_routeService.GetRoute(routeId, UpdateRouteLandmarks, ErrorUtils.DisplayError));
     }
 
 
@@ -175,7 +174,7 @@ public class UIAddUpdateRoute : MonoBehaviour
                     NoLandmarks = r.Landmarks.Count
                 });
             },
-            err => { }
+            ErrorUtils.DisplayError
         ));
     }
 
@@ -200,7 +199,7 @@ public class UIAddUpdateRoute : MonoBehaviour
                     NoLandmarks = r.Landmarks.Count
                 });
             },
-            err => { }
+            ErrorUtils.DisplayError
         ));
     }
 

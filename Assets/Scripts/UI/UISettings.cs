@@ -1,4 +1,6 @@
 using Assets.Scripts.Services;
+using Assets.Scripts.Utils;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -24,7 +26,8 @@ public class UISettings : MonoBehaviour
         switch (AppStates.UserState)
         {
             case UserState.Logged:
-                SetEmailText(SessionVariables.LoggedUser.Email);
+                if (SessionVariables.LoggedUser == null) ErrorUtils.DisplayError("Invalid user");
+                else SetEmailText(SessionVariables.LoggedUser.Email);
                 break;
             case UserState.Guest:
                 SetEmailText("Logged in as GUEST");
@@ -41,8 +44,18 @@ public class UISettings : MonoBehaviour
 
     private void OnLogoutClick()
     {
-        _authenticationService.Logout();
-        SceneManager.LoadScene(ScenesManager.LOGIN);
+        Action helperAction = () =>
+        {
+            _authenticationService.Logout();
+            SceneManager.LoadScene(ScenesManager.LOGIN);
+        };
+
+        if (AppStates.UserState == UserState.None || AppStates.UserState == UserState.Guest) {
+            helperAction.Invoke();
+            return;
+        }
+
+        NotificationService.AddDialog("User", "Are you sure you want to log out?", DialogModal.Buttons.CANCEL_OK, helperAction);
     }
 
 }

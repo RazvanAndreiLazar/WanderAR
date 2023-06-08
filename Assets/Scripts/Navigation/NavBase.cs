@@ -54,7 +54,16 @@ public abstract class NavBase : MonoBehaviour
     {
         var vector = PositioningUtils.GetPositioningVectorFromCamera(cameraCoords, landmark.Coordinates);
 
-        var modelObj = landmark.Model == null ? Instantiate(landmarkPlaceholder) : ModelImporter.Import(landmark.Model);
+        GameObject modelObj;
+        try
+        {
+            modelObj = landmark.Model == null ? Instantiate(landmarkPlaceholder) : ModelImporter.Import(landmark.Model);
+        }
+        catch (System.Exception)
+        {
+            ErrorUtils.DisplayError("Error while creating the object model.\nDisplaying placeholder");
+            modelObj = Instantiate(landmarkPlaceholder);
+        }
 
         ModelImporter.ApplyMaterial(modelObj, landmarkMaterial);
         modelObj.transform.position = vector;

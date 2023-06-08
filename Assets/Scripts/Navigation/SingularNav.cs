@@ -1,4 +1,5 @@
 using Assets.Scripts.Domain;
+using Assets.Scripts.Utils;
 using UnityEngine;
 
 public class SingularNav : NavBase
