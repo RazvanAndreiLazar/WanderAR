@@ -33,7 +33,10 @@ namespace Assets.Scripts.Utils
             else
             {
                 Debug.Log(request.error);
-                errorCallback?.Invoke(ErrorDTO.Deserialize(request.downloadHandler.text));
+                if (ErrorDTO.TryDeserialize(request.downloadHandler.text, out ErrorDTO err))
+                    errorCallback?.Invoke(err);
+                else
+                    ErrorUtils.DisplayError(request.error);
             }
         }
 
@@ -46,7 +49,11 @@ namespace Assets.Scripts.Utils
             else
             {
                 Debug.Log(request.error);
-                errorCallback?.Invoke(ErrorDTO.Deserialize(request.downloadHandler.text));
+
+                if (ErrorDTO.TryDeserialize(request.downloadHandler.text, out ErrorDTO err))
+                    errorCallback?.Invoke(err);
+                else
+                    ErrorUtils.DisplayError(request.error);
             }
         }
      

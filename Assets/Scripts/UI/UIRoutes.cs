@@ -12,7 +12,7 @@ using UnityEngine.UI;
 
 public class UIRoutes : MonoBehaviour
 {
-    public int noTilesPerPage = 7;
+    public int noTilesPerPage = 6;
 
     #region PUBLIC GAME OBJECTS
     public GameObject guestTextPrompt;
@@ -46,7 +46,7 @@ public class UIRoutes : MonoBehaviour
         prevPageButton.onClick.AddListener(PrevPage);
         addRouteButton.onClick.AddListener(OnAddRoutePressed);
 
-        switch (AppStates.UserState)
+        switch (AppState.UserState)
         {
             case UserState.Logged:
                 routeContainer.SetActive(true);
@@ -72,7 +72,7 @@ public class UIRoutes : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (AppStates.UserState == UserState.Logged)
+        if (AppState.UserState == UserState.Logged)
         {
             prevPageButton.interactable = page > 1;
             nextPageButton.interactable = page - 1 < (_routeList.Count - 1) / noTilesPerPage;
@@ -107,12 +107,15 @@ public class UIRoutes : MonoBehaviour
             };
             _listElements[i].DeleteRouteAction = route =>
             {
-                StartCoroutine(_routeService.DeleteRoute(route.Id,
+                NotificationService.AddDialog("Route", "Are you sure you want to delete this route?", DialogModal.Buttons.CANCEL_OK, 
                     () => {
-                        StartCoroutine(ManipulateList());
-                    },
-                    err => { }
-                ));
+                        StartCoroutine(_routeService.DeleteRoute(route.Id,
+                        () => {
+                            StartCoroutine(ManipulateList());
+                        },
+                        ErrorUtils.DisplayError
+                    ));
+                });
             };
 
             routeObj.GetComponent<Button>().onClick.AddListener(
@@ -123,7 +126,7 @@ public class UIRoutes : MonoBehaviour
 
     private IEnumerator ManipulateList()
     {
-        yield return _routeService.GetRoutes(UpdateListOfRoutes, (err) => { });
+        yield return _routeService.GetRoutes(UpdateListOfRoutes, ErrorUtils.DisplayError);
     }
 
     private void UpdateListOfRoutes(IEnumerable<RouteDTO> routes)
@@ -135,14 +138,23 @@ public class UIRoutes : MonoBehaviour
 
     private void OnRouteSelected(RouteDTO route)
     {
-        StartCoroutine(_OnRouteSelected(route));
+        Action helperAction = () => StartCoroutine(_OnRouteSelected(route));
+
+        if (AppState.NavigationState != NavigationState.None)
+        {
+            NotificationService.AddDialog("Navigation", "Another navigation is active. Do you want to cancel it and start a new one?", DialogModal.Buttons.CANCEL_OK, helperAction);
+        }
+        else
+        {
+            helperAction.Invoke();
+        }
     }
 
     private IEnumerator _OnRouteSelected(RouteDTO route)
     {
         RouteWithLandmarksDTO r = null;
 
-        yield return _routeService.GetRoute(route.Id, _route => r = _route, err => { });
+        yield return _routeService.GetRoute(route.Id, _route => r = _route, ErrorUtils.DisplayError);
 
         List<Landmark> landmarks = new();
 
@@ -159,13 +171,13 @@ public class UIRoutes : MonoBehaviour
                     Size = new(_landmark.SizeX, _landmark.SizeY, _landmark.SizeZ),
                     Model = _landmark.Model
                 }),
-                err => { }
+                ErrorUtils.DisplayError
             );
         }
 
         SessionVariables.Landmarks = landmarks;
-        AppStates.NavigationState = NavigationState.OneByOne;
-        SceneManager.LoadScene(ScenesManager.NAVIGATION);
+        AppState.NavigationState = NavigationState.OneByOne;
+        SceneManager.LoadScene(AppScenes.NAVIGATION);
     }
 
     private void NextPage()

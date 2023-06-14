@@ -16,10 +16,22 @@ namespace Assets.Scripts.Utils
         /// </summary>
         //public static int Scale { get; set; }
 
+        public static void AdjustRotation(GameObject sessionOriginObj)
+        {
+            var camera = sessionOriginObj.transform.GetChild(0);
+            var cameraYaw = camera.transform.eulerAngles.y;
+            var cameraYawOffset = camera.transform.localEulerAngles.y;
+            var sessionOriginYaw = sessionOriginObj.transform.localEulerAngles.y;
+
+            var phoneYaw = LocationManager.Heading.eulerAngles.y;
+
+            sessionOriginObj.transform.rotation = Quaternion.Euler(0, phoneYaw - cameraYawOffset, 0);
+        }
+
         public static Vector3 GetPositioningVectorFromCamera(WorldCoordinates cameraCoords, WorldCoordinates landmarkCoords)
         {
-            var cameraCartesianCoords = CoordinatesUtils.CoorinatesToCartesian(cameraCoords);
-            var landmarkCartesianCoords = CoordinatesUtils.CoorinatesToCartesian(landmarkCoords);
+            var cameraCartesianCoords = CoordinatesUtils.GeodeticToECEF(cameraCoords);
+            var landmarkCartesianCoords = CoordinatesUtils.GeodeticToECEF(landmarkCoords);
 
             var dist = CoordinatesUtils.DistanceBetweenPoints(cameraCartesianCoords, landmarkCartesianCoords);
 
@@ -30,7 +42,9 @@ namespace Assets.Scripts.Utils
 
         private static Vector3 LongRange(WorldCoordinates cameraCoords, WorldCoordinates landmarkCoords)
         {
-            throw new NotImplementedException();
+            var landmarkCartesianCoords = CoordinatesUtils.GeodeticToECEF(landmarkCoords);
+            //return CoordinatesUtils.ECEFtoEUN(landmarkCartesianCoords, cameraCoords);
+            return CoordinatesUtils.ECEFtoEUN(landmarkCartesianCoords, cameraCoords).normalized * CRIT_DISTANCE;
         }
 
         private static Vector3 ShortRange(WorldCoordinates cameraCoords, WorldCoordinates landmarkCoords)
@@ -49,8 +63,8 @@ namespace Assets.Scripts.Utils
 
         private static Vector3 GetDirectionVector(WorldCoordinates from, WorldCoordinates to)
         {
-            var fromCart = CoordinatesUtils.RadCoorinatesToCartesian(from.LatitudeRad, from.LongitudeRad);
-            var toCart = CoordinatesUtils.RadCoorinatesToCartesian(to.LatitudeRad, to.LongitudeRad);
+            var fromCart = CoordinatesUtils.RadGeodeticToECEF(from.LatitudeRad, from.LongitudeRad);
+            var toCart = CoordinatesUtils.RadGeodeticToECEF(to.LatitudeRad, to.LongitudeRad);
 
             var dist = CoordinatesUtils.DistanceBetweenPoints(fromCart, toCart);
 

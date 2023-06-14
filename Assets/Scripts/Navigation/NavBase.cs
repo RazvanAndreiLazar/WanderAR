@@ -8,13 +8,17 @@ using UnityEngine;
 
 public abstract class NavBase : MonoBehaviour
 {
-    public GameObject camera;
+    public GameObject camera;                               // the actual session origin
     public Material landmarkMaterial;
     public GameObject landmarkPlaceholder;
 
-    protected List<GameObject> landmarkObjects = new();
+    protected List<NavigationLandmarkObject> landmarkObjects = new();
 
     protected Coroutine movingCoroutine;
+    protected float movingCoroutineTimeout = .5f; //in seconds
+
+    protected WorldCoordinates initialCameraCoords;
+    protected Quaternion initialCameraHeading;
 
     protected virtual void NavigationSetup() { }
     protected virtual void MoveAction() { }
@@ -27,7 +31,7 @@ public abstract class NavBase : MonoBehaviour
         movingCoroutine = StartCoroutine(Navigating());
     }
 
-    protected IEnumerator Navigating()
+    private IEnumerator Navigating()
     {
         var i = 0;
         while (true)
@@ -35,7 +39,7 @@ public abstract class NavBase : MonoBehaviour
             MoveAction();
          
             Debug.Log($"Moving Iteration {i++}");
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(movingCoroutineTimeout);
             
             MoveCleanup();
         }
@@ -46,20 +50,51 @@ public abstract class NavBase : MonoBehaviour
         StopCleanup();
 
         StopCoroutine(movingCoroutine);
-        landmarkObjects.ForEach(Destroy);
+        landmarkObjects.ForEach(l => Destroy(l.ModelObject));
         landmarkObjects.Clear();
     }
 
-    protected GameObject CreateLandmarkObject(WorldCoordinates cameraCoords, Landmark landmark)
+    protected NavigationLandmarkObject CreateLandmarkObject(Landmark landmark)
     {
-        var vector = PositioningUtils.GetPositioningVectorFromCamera(cameraCoords, landmark.Coordinates);
-
-        var modelObj = landmark.Model == null ? Instantiate(landmarkPlaceholder) : ModelImporter.Import(landmark.Model);
+        GameObject modelObj;
+        var isPlaceholder = false;
+        try
+        {
+            if (landmark.Model == null)
+            {
+                modelObj = Instantiate(landmarkPlaceholder);
+                isPlaceholder = true;
+            }
+            else
+                modelObj = ModelImporter.Import(landmark.Model);
+        }
+        catch (System.Exception)
+        {
+            ErrorUtils.DisplayError("Error while creating the object model.\nDisplaying placeholder");
+            modelObj = Instantiate(landmarkPlaceholder);
+            isPlaceholder = true;
+        }
 
         ModelImporter.ApplyMaterial(modelObj, landmarkMaterial);
-        modelObj.transform.position = vector;
         modelObj.name = landmark.Name;
 
-        return modelObj;
+        return new NavigationLandmarkObject { IsModelPlaceholder = isPlaceholder, ModelObject = modelObj, Landmark = landmark };
+    }
+
+    protected void PositionLandmarkObject(WorldCoordinates cameraCoords, NavigationLandmarkObject landmark)
+    {
+        var vector = PositioningUtils.GetPositioningVectorFromCamera(cameraCoords, landmark.Landmark.Coordinates);
+
+        landmark.ModelObject.transform.position = vector;
+        
+        if (landmark.IsModelPlaceholder)
+            landmark.ModelObject.transform.localScale = Vector3.one * Mathf.Min(1000, Mathf.Max(1, vector.magnitude * .1f));
+    }
+
+    protected NavigationLandmarkObject CreateAndPositionObject(WorldCoordinates cameraCoords, Landmark landmark)
+    {
+        var l = CreateLandmarkObject(landmark);
+        PositionLandmarkObject(cameraCoords, l);
+        return l;
     }
 }

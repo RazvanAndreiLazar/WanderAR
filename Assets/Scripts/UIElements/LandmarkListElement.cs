@@ -19,6 +19,7 @@ namespace Assets.Scripts.UIElements
         private TMP_Text nameTxt;
         private TMP_Text locationTxt;
         private TMP_Text distanceTxt;
+        private GameObject bottomView;
 
         #region PRIVATE CONSTS
         private const int NAME_POS = 0;
@@ -30,6 +31,7 @@ namespace Assets.Scripts.UIElements
 
         protected override void StartSetup()
         {
+            bottomView = transform.GetChild(0).gameObject;
             var topView = transform.GetChild(1);
 
             nameTxt = topView.transform.GetChild(NAME_POS).gameObject.GetComponent<TMP_Text>();
@@ -47,9 +49,10 @@ namespace Assets.Scripts.UIElements
             locationTxt.text = item.Landmark.City;
 
             distanceTxt.text = item.Distance < 10000 ? $"{Mathf.Floor(item.Distance)}m" : $"{Mathf.Floor(item.Distance/1000)}km";
-             
-            //swipeBehaviour.enabled = Landmark.Id == SessionVariables.LoggedUser.Id;
 
+            var swipeactionAvailable = AppState.UserState == UserState.Logged && Landmark.Landmark.UserId == SessionVariables.LoggedUser.Id;
+            swipeBehaviour.enabled = swipeactionAvailable;
+            bottomView.SetActive(swipeactionAvailable);
         }
     }
 }

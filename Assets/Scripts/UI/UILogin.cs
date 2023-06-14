@@ -37,16 +37,22 @@ public class UILogin : MonoBehaviour
 
     private Color errorBackgroundColor = new Color(1, 0.4f, 0.4f);
 
+    int i = 0;
+
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        AppStates.UserState = UserState.None;
+        errorText.text = "1";
+        AppState.UserState = UserState.None;
+        errorText.text = "2";
 
         if (SessionVariables.SessionToken != "")
         {
+            errorText.text = "3";
             GetLoggedUser();
         }
 
+        errorText.text = "5";
         SwitchToLogin();
         errorText.text = "";
 
@@ -112,8 +118,8 @@ public class UILogin : MonoBehaviour
 
         StartCoroutine(_authenticationService.Login(loginEmailInputField.text, loginPasswordInputField.text, 
             () => {
-                AppStates.UserState = UserState.Logged;
-                SceneManager.LoadScene(ScenesManager.MENU);
+                AppState.UserState = UserState.Logged;
+                SceneManager.LoadScene(AppScenes.MENU);
             },
             (err) => SetErrorText(GetErrorString(err))
         ));
@@ -121,16 +127,17 @@ public class UILogin : MonoBehaviour
 
     public void LoginAsGuest()
     {
-        AppStates.UserState = UserState.Guest;
-        SceneManager.LoadScene(ScenesManager.MENU);
+        AppState.UserState = UserState.Guest;
+        SceneManager.LoadScene(AppScenes.MENU);
+        SetErrorText(AppScenes.MENU.ToString());
     }
 
     public void GetLoggedUser()
     {
         StartCoroutine(_authenticationService.GetLoggedUser(
             () => {
-                AppStates.UserState = UserState.Logged;
-                SceneManager.LoadScene(ScenesManager.MENU);
+                AppState.UserState = UserState.Logged;
+                SceneManager.LoadScene(AppScenes.MENU);
         }));
     }
 

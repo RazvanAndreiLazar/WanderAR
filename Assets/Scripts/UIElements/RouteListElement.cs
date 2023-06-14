@@ -55,8 +55,9 @@ namespace Assets.Scripts.UIElements
 
         protected override void UpdateBehaviour()
         {
+            var distance = Route.TotalDistance > 2000 ? $"{Route.TotalDistance / 1000:0.#} km" : $"{(int)Route.TotalDistance} m"; 
             nameTxt.text = Route.Name;
-            infoTxt.text = $"{Route.NoLandmarks} landmarks (distance: {Route.TotalDistance} m)";
+            infoTxt.text = $"{Route.NoLandmarks} landmarks (distance: {distance})";
         }
     }
 }

@@ -21,5 +21,11 @@ namespace Assets.Scripts.Domain
         {
             return JsonConvert.DeserializeObject<T>(str);
         }   
+
+        public static bool TryDeserialize(string str, out T obj)
+        {
+            obj = JsonConvert.DeserializeObject<T>(str);
+            return obj != null;
+        }
     }
 }

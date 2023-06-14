@@ -175,10 +175,10 @@ public class UIAddLandmarkToRoute : MonoBehaviour
 
     private IEnumerator ManipulateList(bool globalLandmarks, bool ownLandmarks)
     {
-        if (AppStates.UserState == UserState.None)
+        if (AppState.UserState == UserState.None)
             yield break;
 
-        if (AppStates.UserState == UserState.Guest)
+        if (AppState.UserState == UserState.Guest)
         {
             if (globalLandmarks)
                 yield return _landmarkService.GetAllAvailableLandmarksGuest(UpdateListOfLandmarks, DisplayError);
@@ -231,7 +231,7 @@ public class UIAddLandmarkToRoute : MonoBehaviour
 
     private void DisplayError(ErrorDTO error)
     {
-
+        ErrorUtils.DisplayError(error);
     }
 
     private void OnPageChanged()

@@ -69,7 +69,7 @@ namespace Assets.Scripts.Services
         {
             SessionVariables.SessionToken = "";
             SessionVariables.LoggedUser = null;
-            AppStates.UserState = UserState.None;
+            AppState.UserState = UserState.None;
         }
     }
 }

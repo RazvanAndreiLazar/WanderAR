@@ -1,5 +1,6 @@
 using Assets.Scripts.Domain.DTOs;
 using Assets.Scripts.Domain.Models;
+using Assets.Scripts.Services;
 using Assets.Scripts.Utils;
 using System;
 using System.Collections;
@@ -36,7 +37,11 @@ public class UINavigation : MonoBehaviour
 
         };
 
-        switch (AppStates.NavigationState)
+
+        navManager.StartNavigating();
+
+
+        switch (AppState.NavigationState)
         {
             case NavigationState.None:
                 informationPannel.SetActive(false);
@@ -45,6 +50,8 @@ public class UINavigation : MonoBehaviour
             case NavigationState.Proximity:
                 informationPannel.SetActive(true);
                 routeInformationPannel.SetActive(false);
+                landmarkNameTxt.text = "";
+                distanceTxt.text = "";
                 break;
             case NavigationState.Singular:
                 informationPannel.SetActive(true);
@@ -56,6 +63,8 @@ public class UINavigation : MonoBehaviour
             case NavigationState.AllAtOnce:
                 informationPannel.SetActive(false);
                 routeInformationPannel.SetActive(true);
+                routeLandmarkNameTxt.text = "";
+                routeDistanceTxt.text = "";
                 break;
             case NavigationState.OneByOne:
                 informationPannel.SetActive(false);
@@ -66,6 +75,7 @@ public class UINavigation : MonoBehaviour
 
                 prevLandmarkBut.enabled = true;
                 nextLandmarkBut.enabled = true;
+                SetLandmarkButtonsInteractibility();
                 prevLandmarkBut.onClick.AddListener(PreviousLandmark);
                 nextLandmarkBut.onClick.AddListener(NextLandmark);
                 switchNavBut.onClick.AddListener(SwitchMode);
@@ -104,15 +114,28 @@ public class UINavigation : MonoBehaviour
     public void BackToMenu()
     {
         // Just Navigate back to the menu
-        SceneManager.LoadScene(ScenesManager.MENU);
+        SceneManager.LoadScene(AppScenes.MENU);
     }
 
     public void ExitNavigation()
     {
-        // Set the navigation state back to none and stop the navigation
-        AppStates.NavigationState = NavigationState.None;
-        navManager.StopNavigating();
-        informationPannel?.SetActive(false);
+        NotificationService.AddDialog("Navigation", "Are you sure you want to exit navigation?", DialogModal.Buttons.CANCEL_OK, () =>
+        {
+            // Set the navigation state back to none and stop the navigation
+            try
+            {
+                AppState.NavigationState = NavigationState.None;
+                navManager.StopNavigating();
+                informationPannel?.SetActive(false);
+                routeInformationPannel?.SetActive(false);
+            }
+            catch (Exception E)
+            {
+
+                ErrorUtils.DisplayError(E.Message + " " + E.InnerException.Message);
+            }
+        });
+
     }
 
     public void DropPin()
@@ -127,6 +150,8 @@ public class UINavigation : MonoBehaviour
 
         trackedLandmark = SessionVariables.CurrentLandmark;
         routeLandmarkNameTxt.text = trackedLandmark.Name;
+
+        SetLandmarkButtonsInteractibility();
     }
     public void NextLandmark()
     {
@@ -134,14 +159,26 @@ public class UINavigation : MonoBehaviour
 
         trackedLandmark = SessionVariables.CurrentLandmark;
         routeLandmarkNameTxt.text = trackedLandmark.Name;
+
+        SetLandmarkButtonsInteractibility();
     }
+
+    private void SetLandmarkButtonsInteractibility()
+    {
+        prevLandmarkBut.interactable = SessionVariables.NavigationLandmarkIndex > 0;
+        nextLandmarkBut.interactable = SessionVariables.NavigationLandmarkIndex < SessionVariables.Landmarks.Count - 1;
+    }
+
     public void SwitchMode()
     {
-        if (AppStates.NavigationState == NavigationState.OneByOne)
+        if (AppState.NavigationState == NavigationState.OneByOne)
         {
-            AppStates.NavigationState = NavigationState.AllAtOnce;
+            AppState.NavigationState = NavigationState.AllAtOnce;
             trackedLandmark = null;
             StopAllCoroutines();
+            routeLandmarkNameTxt.text = "";
+            routeDistanceTxt.text = "";
+
             nextLandmarkBut.gameObject.SetActive(false);
             prevLandmarkBut.gameObject.SetActive(false);
 
@@ -150,9 +187,9 @@ public class UINavigation : MonoBehaviour
 
             navManager.SwitchRouteNavigationMode();
         }
-        else if (AppStates.NavigationState == NavigationState.AllAtOnce)
+        else if (AppState.NavigationState == NavigationState.AllAtOnce)
         {
-            AppStates.NavigationState = NavigationState.OneByOne;
+            AppState.NavigationState = NavigationState.OneByOne;
             StopAllCoroutines();
             trackedLandmark = SessionVariables.CurrentLandmark;
             routeLandmarkNameTxt.text = trackedLandmark.Name;
@@ -164,6 +201,8 @@ public class UINavigation : MonoBehaviour
             switchNavBut.transform.GetChild(1).gameObject.SetActive(false);
 
             navManager.SwitchRouteNavigationMode();
+
+            StartCoroutine(RouteUpdateDistance());
         }
     }
 
