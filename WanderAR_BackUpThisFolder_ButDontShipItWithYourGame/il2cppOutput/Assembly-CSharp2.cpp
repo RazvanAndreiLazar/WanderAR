@@ -4507,10 +4507,10 @@ struct LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3_StaticFields
 {
 	// Assets.Scripts.Domain.WorldCoordinates LocationManager::<Location>k__BackingField
 	WorldCoordinates_t2469285087084058600FD4497F6C952D1484A217* ___U3CLocationU3Ek__BackingField_4;
-	// UnityEngine.Quaternion LocationManager::Heading
-	Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 ___Heading_5;
-	// System.Boolean LocationManager::IsTracking
-	bool ___IsTracking_6;
+	// UnityEngine.Quaternion LocationManager::<Heading>k__BackingField
+	Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 ___U3CHeadingU3Ek__BackingField_5;
+	// System.Boolean LocationManager::<IsTracking>k__BackingField
+	bool ___U3CIsTrackingU3Ek__BackingField_6;
 };
 
 // SwipeToAction
@@ -24285,7 +24285,7 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR WorldCoordinates_t246928508708405
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		// public static WorldCoordinates Location { get; set; } = new(46.77472f, 23.62172f, 360);
+		// public static WorldCoordinates Location { get; private set; } = new(46.77472f, 23.62172f, 360);
 		il2cpp_codegen_runtime_class_init_inline(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3_il2cpp_TypeInfo_var);
 		WorldCoordinates_t2469285087084058600FD4497F6C952D1484A217* L_0 = ((LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3_StaticFields*)il2cpp_codegen_static_fields_for(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3_il2cpp_TypeInfo_var))->___U3CLocationU3Ek__BackingField_4;
 		return L_0;

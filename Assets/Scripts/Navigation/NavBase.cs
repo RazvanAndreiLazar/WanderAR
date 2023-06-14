@@ -8,7 +8,7 @@ using UnityEngine;
 
 public abstract class NavBase : MonoBehaviour
 {
-    public GameObject camera;
+    public GameObject camera;                               // the actual session origin
     public Material landmarkMaterial;
     public GameObject landmarkPlaceholder;
 

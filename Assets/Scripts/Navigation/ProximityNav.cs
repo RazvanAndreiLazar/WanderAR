@@ -18,6 +18,8 @@ public class ProximityNav : NavBase
 
     private void GetProximityLandmarks()
     {
+        if (!LocationManager.IsTracking) return;
+
         var cameraCoords = LocationManager.Location;
 
         var pastLandmarks = new List<NavigationLandmarkObject>(landmarkObjects);

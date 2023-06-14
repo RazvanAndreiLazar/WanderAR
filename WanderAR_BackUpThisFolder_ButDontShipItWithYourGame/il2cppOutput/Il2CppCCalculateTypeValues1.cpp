@@ -7394,14 +7394,14 @@ struct VariableScope_t25C4325FFBD991BC4BAE923BD7D52023318CD513  : public Runtime
 	List_1_tB4C51EDF952DFE5B85A78E600B2A730FDF6996C8* ___ChildScopes_4;
 };
 
-// LocationManager/<StartLocationService>d__29
-struct U3CStartLocationServiceU3Ed__29_t06FD41799838E460718F54CD200266180796D831  : public RuntimeObject
+// LocationManager/<StartLocationService>d__35
+struct U3CStartLocationServiceU3Ed__35_tBE33F3A8724407F5958A79B73DDAD850E8377677  : public RuntimeObject
 {
-	// System.Int32 LocationManager/<StartLocationService>d__29::<>1__state
+	// System.Int32 LocationManager/<StartLocationService>d__35::<>1__state
 	int32_t ___U3CU3E1__state_0;
-	// System.Object LocationManager/<StartLocationService>d__29::<>2__current
+	// System.Object LocationManager/<StartLocationService>d__35::<>2__current
 	RuntimeObject* ___U3CU3E2__current_1;
-	// LocationManager LocationManager/<StartLocationService>d__29::<>4__this
+	// LocationManager LocationManager/<StartLocationService>d__35::<>4__this
 	LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3* ___U3CU3E4__this_2;
 };
 
@@ -32493,10 +32493,10 @@ struct LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3_StaticFields
 {
 	// Assets.Scripts.Domain.WorldCoordinates LocationManager::<Location>k__BackingField
 	WorldCoordinates_t2469285087084058600FD4497F6C952D1484A217* ___U3CLocationU3Ek__BackingField_4;
-	// UnityEngine.Quaternion LocationManager::Heading
-	Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 ___Heading_5;
-	// System.Boolean LocationManager::IsTracking
-	bool ___IsTracking_6;
+	// UnityEngine.Quaternion LocationManager::<Heading>k__BackingField
+	Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 ___U3CHeadingU3Ek__BackingField_5;
+	// System.Boolean LocationManager::<IsTracking>k__BackingField
+	bool ___U3CIsTrackingU3Ek__BackingField_6;
 };
 
 // UnityEngine.XR.OpenXR.Features.Interactions.MicrosoftHandInteraction
@@ -34491,6 +34491,8 @@ struct SingularNav_tED3D5501B8DB51D00042811DB694AB9B00FBAE34  : public NavBase_t
 {
 	// Assets.Scripts.Domain.Models.NavigationLandmarkObject SingularNav::lnavObj
 	NavigationLandmarkObject_t8CFA2A120FADF8DDD9218D20B5E4431DED909896* ___lnavObj_12;
+	// System.Boolean SingularNav::isCalibrated
+	bool ___isCalibrated_13;
 };
 
 // TMPro.TextContainer
@@ -39186,7 +39188,7 @@ const Il2CppTypeDefinitionSizes g_typeDefinitionSize6751 = { sizeof(User_t830E70
 extern const Il2CppTypeDefinitionSizes g_typeDefinitionSize6752;
 const Il2CppTypeDefinitionSizes g_typeDefinitionSize6752 = { sizeof(AllAtOnceNav_tC7158A11A6EEE47087BB86442532BE9CAB3AD8BE), -1, 0, 0 };
 extern const Il2CppTypeDefinitionSizes g_typeDefinitionSize6753;
-const Il2CppTypeDefinitionSizes g_typeDefinitionSize6753 = { sizeof(U3CStartLocationServiceU3Ed__29_t06FD41799838E460718F54CD200266180796D831), -1, 0, 0 };
+const Il2CppTypeDefinitionSizes g_typeDefinitionSize6753 = { sizeof(U3CStartLocationServiceU3Ed__35_tBE33F3A8724407F5958A79B73DDAD850E8377677), -1, 0, 0 };
 extern const Il2CppTypeDefinitionSizes g_typeDefinitionSize6754;
 const Il2CppTypeDefinitionSizes g_typeDefinitionSize6754 = { sizeof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3), -1, sizeof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3_StaticFields), 0 };
 extern const Il2CppTypeDefinitionSizes g_typeDefinitionSize6755;

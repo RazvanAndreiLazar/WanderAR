@@ -4642,14 +4642,14 @@ struct U3CU3Ec_t480832E6E9C0D190B837CC90FB7A34286511D2E4_StaticFields
 	U3CU3Ec_t480832E6E9C0D190B837CC90FB7A34286511D2E4* ___U3CU3E9_0;
 };
 
-// LocationManager/<StartLocationService>d__29
-struct U3CStartLocationServiceU3Ed__29_t06FD41799838E460718F54CD200266180796D831  : public RuntimeObject
+// LocationManager/<StartLocationService>d__35
+struct U3CStartLocationServiceU3Ed__35_tBE33F3A8724407F5958A79B73DDAD850E8377677  : public RuntimeObject
 {
-	// System.Int32 LocationManager/<StartLocationService>d__29::<>1__state
+	// System.Int32 LocationManager/<StartLocationService>d__35::<>1__state
 	int32_t ___U3CU3E1__state_0;
-	// System.Object LocationManager/<StartLocationService>d__29::<>2__current
+	// System.Object LocationManager/<StartLocationService>d__35::<>2__current
 	RuntimeObject* ___U3CU3E2__current_1;
-	// LocationManager LocationManager/<StartLocationService>d__29::<>4__this
+	// LocationManager LocationManager/<StartLocationService>d__35::<>4__this
 	LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3* ___U3CU3E4__this_2;
 };
 
@@ -20967,10 +20967,10 @@ struct LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3_StaticFields
 {
 	// Assets.Scripts.Domain.WorldCoordinates LocationManager::<Location>k__BackingField
 	WorldCoordinates_t2469285087084058600FD4497F6C952D1484A217* ___U3CLocationU3Ek__BackingField_4;
-	// UnityEngine.Quaternion LocationManager::Heading
-	Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 ___Heading_5;
-	// System.Boolean LocationManager::IsTracking
-	bool ___IsTracking_6;
+	// UnityEngine.Quaternion LocationManager::<Heading>k__BackingField
+	Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 ___U3CHeadingU3Ek__BackingField_5;
+	// System.Boolean LocationManager::<IsTracking>k__BackingField
+	bool ___U3CIsTrackingU3Ek__BackingField_6;
 };
 
 // UnityEngine.XR.OpenXR.Features.Interactions.MicrosoftHandInteraction
@@ -22817,6 +22817,8 @@ struct SingularNav_tED3D5501B8DB51D00042811DB694AB9B00FBAE34  : public NavBase_t
 {
 	// Assets.Scripts.Domain.Models.NavigationLandmarkObject SingularNav::lnavObj
 	NavigationLandmarkObject_t8CFA2A120FADF8DDD9218D20B5E4431DED909896* ___lnavObj_12;
+	// System.Boolean SingularNav::isCalibrated
+	bool ___isCalibrated_13;
 };
 
 // UnityEngine.UI.ToggleGroup
@@ -25030,10 +25032,10 @@ IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable6751[2] =
 	static_cast<int32_t>(offsetof(User_t830E70FAB67A96176D2C105CB5BBDA86733559AB, ___U3CIdU3Ek__BackingField_0)),static_cast<int32_t>(offsetof(User_t830E70FAB67A96176D2C105CB5BBDA86733559AB, ___U3CEmailU3Ek__BackingField_1)),};
 IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable6753[3] = 
 {
-	static_cast<int32_t>(offsetof(U3CStartLocationServiceU3Ed__29_t06FD41799838E460718F54CD200266180796D831, ___U3CU3E1__state_0)),static_cast<int32_t>(offsetof(U3CStartLocationServiceU3Ed__29_t06FD41799838E460718F54CD200266180796D831, ___U3CU3E2__current_1)),static_cast<int32_t>(offsetof(U3CStartLocationServiceU3Ed__29_t06FD41799838E460718F54CD200266180796D831, ___U3CU3E4__this_2)),};
+	static_cast<int32_t>(offsetof(U3CStartLocationServiceU3Ed__35_tBE33F3A8724407F5958A79B73DDAD850E8377677, ___U3CU3E1__state_0)),static_cast<int32_t>(offsetof(U3CStartLocationServiceU3Ed__35_tBE33F3A8724407F5958A79B73DDAD850E8377677, ___U3CU3E2__current_1)),static_cast<int32_t>(offsetof(U3CStartLocationServiceU3Ed__35_tBE33F3A8724407F5958A79B73DDAD850E8377677, ___U3CU3E4__this_2)),};
 IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable6754[23] = 
 {
-	static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3_StaticFields, ___U3CLocationU3Ek__BackingField_4)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3_StaticFields, ___Heading_5)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3_StaticFields, ___IsTracking_6)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ___earthManager_7)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ___arCoreExtensions_8)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ___isDebugging_9)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ___latitude_10)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ___longitude_11)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ___altitude_12)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ___heading_13)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ____enablingGeospatial_14)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ____isLocalizing_15)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ____isEnabled_16)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ____localizationPassedTime_17)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ____configurePrepareTime_18)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ____startLocationService_19)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ____initialHeading_20)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ____initialRotation_21)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ____messageDisplayed_22)),0,0,0,0,};
+	static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3_StaticFields, ___U3CLocationU3Ek__BackingField_4)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3_StaticFields, ___U3CHeadingU3Ek__BackingField_5)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3_StaticFields, ___U3CIsTrackingU3Ek__BackingField_6)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ___earthManager_7)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ___arCoreExtensions_8)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ___isDebugging_9)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ___latitude_10)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ___longitude_11)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ___altitude_12)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ___heading_13)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ____enablingGeospatial_14)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ____isLocalizing_15)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ____isEnabled_16)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ____localizationPassedTime_17)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ____configurePrepareTime_18)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ____startLocationService_19)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ____initialHeading_20)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ____initialRotation_21)),static_cast<int32_t>(offsetof(LocationManager_tAE62593779092740014F7C546809A7C37C3CE7F3, ____messageDisplayed_22)),0,0,0,0,};
 IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable6755[4] = 
 {
 	static_cast<int32_t>(offsetof(U3CNavigatingU3Ed__13_t6AB06EF5AFA3AEAFE3FE7DEA016C7F1523EC3A3E, ___U3CU3E1__state_0)),static_cast<int32_t>(offsetof(U3CNavigatingU3Ed__13_t6AB06EF5AFA3AEAFE3FE7DEA016C7F1523EC3A3E, ___U3CU3E2__current_1)),static_cast<int32_t>(offsetof(U3CNavigatingU3Ed__13_t6AB06EF5AFA3AEAFE3FE7DEA016C7F1523EC3A3E, ___U3CU3E4__this_2)),static_cast<int32_t>(offsetof(U3CNavigatingU3Ed__13_t6AB06EF5AFA3AEAFE3FE7DEA016C7F1523EC3A3E, ___U3CiU3E5__2_3)),};
@@ -25061,9 +25063,9 @@ IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable6762[3] =
 IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable6763[2] = 
 {
 	static_cast<int32_t>(offsetof(ProximityNav_t96CC47EB45B530BFAD9F4197DA8172032682F680, ___getLandmarksCoroutine_12)),static_cast<int32_t>(offsetof(ProximityNav_t96CC47EB45B530BFAD9F4197DA8172032682F680, ____landmarkService_13)),};
-IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable6764[1] = 
+IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable6764[2] = 
 {
-	static_cast<int32_t>(offsetof(SingularNav_tED3D5501B8DB51D00042811DB694AB9B00FBAE34, ___lnavObj_12)),};
+	static_cast<int32_t>(offsetof(SingularNav_tED3D5501B8DB51D00042811DB694AB9B00FBAE34, ___lnavObj_12)),static_cast<int32_t>(offsetof(SingularNav_tED3D5501B8DB51D00042811DB694AB9B00FBAE34, ___isCalibrated_13)),};
 IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable6765[2] = 
 {
 	static_cast<int32_t>(offsetof(U3CU3Ec__DisplayClass22_0_t415A9F5950AF4748B0BA5B391FD598AE5626899D, ___j_0)),static_cast<int32_t>(offsetof(U3CU3Ec__DisplayClass22_0_t415A9F5950AF4748B0BA5B391FD598AE5626899D, ___U3CU3E4__this_1)),};

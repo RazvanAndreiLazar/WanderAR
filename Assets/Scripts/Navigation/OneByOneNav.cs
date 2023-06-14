@@ -8,16 +8,21 @@ using UnityEngine;
 public class OneByOneNav : NavBase
 {
     private Landmark displayedLandmark;
+    private NavigationLandmarkObject lnavObj;
+
+    private bool isCalibrated;
 
     protected override void NavigationSetup()
     {
-        initialCameraCoords = LocationManager.Location;
         camera.transform.position = Vector3.zero;
 
         displayedLandmark = SessionVariables.CurrentLandmark;
-        var l = CreateLandmarkObject(displayedLandmark);
-        landmarkObjects.Add(l);
-        PositionLandmarkObject(initialCameraCoords, l);
+        lnavObj = CreateLandmarkObject(displayedLandmark);
+        landmarkObjects.Add(lnavObj);
+        lnavObj.Hide();
+
+        isCalibrated = false;
+        //PositionLandmarkObject(initialCameraCoords, lnavObj);
     }
 
     protected override void MoveAction()
@@ -29,6 +34,28 @@ public class OneByOneNav : NavBase
             landmarkObjects.Clear();
 
             StartNavigating();
+            return;
+        }
+
+        if (!LocationManager.IsTracking)
+        {
+            isCalibrated = false;
+            return;
+        }
+        
+
+        if (!isCalibrated)
+        {
+            lnavObj.Show();
+            initialCameraCoords = LocationManager.Location;
+            
+            PositionLandmarkObject(LocationManager.Location, lnavObj);
+            PositioningUtils.AdjustRotation(camera);
+
+            isCalibrated = true;
+
+            //ErrorUtils.DisplayError($"Session origin rotation: {camera.transform.rotation}\ncamera rotation: {camera.transform.GetChild(0).rotation}\n{actualCamera.transform.localEulerAngles.y}\n" +
+            //    $"{camera.transform.eulerAngles.y}-{actualCamera.transform.eulerAngles.y} = {camera.transform.eulerAngles.y - actualCamera.transform.eulerAngles.y}");
         }
     }
 }

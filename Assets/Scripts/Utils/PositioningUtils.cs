@@ -16,6 +16,18 @@ namespace Assets.Scripts.Utils
         /// </summary>
         //public static int Scale { get; set; }
 
+        public static void AdjustRotation(GameObject sessionOriginObj)
+        {
+            var camera = sessionOriginObj.transform.GetChild(0);
+            var cameraYaw = camera.transform.eulerAngles.y;
+            var cameraYawOffset = camera.transform.localEulerAngles.y;
+            var sessionOriginYaw = sessionOriginObj.transform.localEulerAngles.y;
+
+            var phoneYaw = LocationManager.Heading.eulerAngles.y;
+
+            sessionOriginObj.transform.rotation = Quaternion.Euler(0, phoneYaw - cameraYawOffset, 0);
+        }
+
         public static Vector3 GetPositioningVectorFromCamera(WorldCoordinates cameraCoords, WorldCoordinates landmarkCoords)
         {
             var cameraCartesianCoords = CoordinatesUtils.GeodeticToECEF(cameraCoords);

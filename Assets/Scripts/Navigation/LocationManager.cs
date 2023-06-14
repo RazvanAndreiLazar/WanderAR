@@ -11,9 +11,9 @@ using UnityEngine.XR.ARSubsystems;
 
 public class LocationManager : MonoBehaviour
 {
-    public static WorldCoordinates Location { get; set; } = new(46.77472f, 23.62172f, 360);
-    public static Quaternion Heading;
-    public static bool IsTracking = false;
+    public static WorldCoordinates Location { get; private set; } = new(46.77472f, 23.62172f, 360);
+    public static Quaternion Heading { get; private set; }
+    public static bool IsTracking { get; private set; } = false;
 
     public AREarthManager earthManager;
     public ARCoreExtensions arCoreExtensions;
