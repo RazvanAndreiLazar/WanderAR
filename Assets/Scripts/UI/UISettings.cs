@@ -23,7 +23,7 @@ public class UISettings : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        switch (AppStates.UserState)
+        switch (AppState.UserState)
         {
             case UserState.Logged:
                 if (SessionVariables.LoggedUser == null) ErrorUtils.DisplayError("Invalid user");
@@ -47,10 +47,10 @@ public class UISettings : MonoBehaviour
         Action helperAction = () =>
         {
             _authenticationService.Logout();
-            SceneManager.LoadScene(ScenesManager.LOGIN);
+            SceneManager.LoadScene(AppScenes.LOGIN);
         };
 
-        if (AppStates.UserState == UserState.None || AppStates.UserState == UserState.Guest) {
+        if (AppState.UserState == UserState.None || AppState.UserState == UserState.Guest) {
             helperAction.Invoke();
             return;
         }

@@ -16,7 +16,7 @@ public class NavManager : MonoBehaviour
     {
         //ErrorUtils.DisplayError($"In Nav manager start navigaing {AppStates.NavigationState}");
 
-        switch (AppStates.NavigationState)
+        switch (AppState.NavigationState)
         {
             case NavigationState.None:
                 break;

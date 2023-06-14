@@ -53,11 +53,11 @@ public class UIProximity : MonoBehaviour
             Action helperAction = () =>
             {
                 SessionVariables.ProximityRange = maxDist;
-                AppStates.NavigationState = NavigationState.Proximity;
-                SceneManager.LoadScene(ScenesManager.NAVIGATION);
+                AppState.NavigationState = NavigationState.Proximity;
+                SceneManager.LoadScene(AppScenes.NAVIGATION);
             };
 
-            if (AppStates.NavigationState != NavigationState.None)
+            if (AppState.NavigationState != NavigationState.None)
             {
                 NotificationService.AddDialog("Navigation", "Another navigation is active. Do you want to cancel it and start a new one?", DialogModal.Buttons.CANCEL_OK, helperAction);
             }

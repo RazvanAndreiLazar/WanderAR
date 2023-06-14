@@ -50,7 +50,7 @@ namespace Assets.Scripts.UIElements
 
             distanceTxt.text = item.Distance < 10000 ? $"{Mathf.Floor(item.Distance)}m" : $"{Mathf.Floor(item.Distance/1000)}km";
 
-            var swipeactionAvailable = AppStates.UserState == UserState.Logged && Landmark.Landmark.UserId == SessionVariables.LoggedUser.Id;
+            var swipeactionAvailable = AppState.UserState == UserState.Logged && Landmark.Landmark.UserId == SessionVariables.LoggedUser.Id;
             swipeBehaviour.enabled = swipeactionAvailable;
             bottomView.SetActive(swipeactionAvailable);
         }

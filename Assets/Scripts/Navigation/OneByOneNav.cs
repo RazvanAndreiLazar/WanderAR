@@ -7,8 +7,6 @@ using UnityEngine;
 
 public class OneByOneNav : NavBase
 {
-    private WorldCoordinates initialCameraCoords;
-
     private Landmark displayedLandmark;
 
     protected override void NavigationSetup()
@@ -17,7 +15,9 @@ public class OneByOneNav : NavBase
         camera.transform.position = Vector3.zero;
 
         displayedLandmark = SessionVariables.CurrentLandmark;
-        landmarkObjects.Add(CreateLandmarkObject(initialCameraCoords, displayedLandmark));
+        var l = CreateLandmarkObject(displayedLandmark);
+        landmarkObjects.Add(l);
+        PositionLandmarkObject(initialCameraCoords, l);
     }
 
     protected override void MoveAction()
@@ -25,7 +25,7 @@ public class OneByOneNav : NavBase
         if (displayedLandmark.Id != SessionVariables.CurrentLandmark.Id)
         {
             StopCoroutine(movingCoroutine);
-            landmarkObjects.ForEach(Destroy);
+            landmarkObjects.ForEach(l => Destroy(l.ModelObject));
             landmarkObjects.Clear();
 
             StartNavigating();

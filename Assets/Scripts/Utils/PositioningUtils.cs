@@ -31,6 +31,7 @@ namespace Assets.Scripts.Utils
         private static Vector3 LongRange(WorldCoordinates cameraCoords, WorldCoordinates landmarkCoords)
         {
             var landmarkCartesianCoords = CoordinatesUtils.GeodeticToECEF(landmarkCoords);
+            //return CoordinatesUtils.ECEFtoEUN(landmarkCartesianCoords, cameraCoords);
             return CoordinatesUtils.ECEFtoEUN(landmarkCartesianCoords, cameraCoords).normalized * CRIT_DISTANCE;
         }
 

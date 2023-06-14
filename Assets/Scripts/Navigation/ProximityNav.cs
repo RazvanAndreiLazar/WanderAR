@@ -20,7 +20,7 @@ public class ProximityNav : NavBase
     {
         var cameraCoords = LocationManager.Location;
 
-        var pastLandmarks = new List<GameObject>(landmarkObjects);
+        var pastLandmarks = new List<NavigationLandmarkObject>(landmarkObjects);
         landmarkObjects.Clear();
 
         getLandmarksCoroutine = StartCoroutine(_landmarkService.GetProxyLandmarks(SessionVariables.ProximityRange, cameraCoords,
@@ -28,12 +28,12 @@ public class ProximityNav : NavBase
             {
                 foreach (var lmk in landmarks)
                 {
-                    landmarkObjects.Add( CreateLandmarkObject(cameraCoords, Landmark.FromLandmarkDTO(lmk)) );
+                    landmarkObjects.Add( CreateAndPositionObject(cameraCoords, Landmark.FromLandmarkDTO(lmk)) );
                 }
                 camera.transform.position = Vector3.zero;
 
 
-                pastLandmarks.ForEach(Destroy);
+                pastLandmarks.ForEach(l => Destroy(l.ModelObject));
             },
             (err) =>
             {

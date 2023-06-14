@@ -31,7 +31,7 @@ public class UIMenu : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (AppStates.UserState == UserState.None)
+        if (AppState.UserState == UserState.None)
             gameObject.SetActive(false);
 
         buttons = new GameObject[] { SettingsButton, LandmarkButton, ProxyButton, RouteButton };
@@ -99,6 +99,6 @@ public class UIMenu : MonoBehaviour
 
     public void ExitMenu()
     {
-        SceneManager.LoadScene(ScenesManager.NAVIGATION);
+        SceneManager.LoadScene(AppScenes.NAVIGATION);
     }
 }

@@ -46,7 +46,7 @@ public class UIRoutes : MonoBehaviour
         prevPageButton.onClick.AddListener(PrevPage);
         addRouteButton.onClick.AddListener(OnAddRoutePressed);
 
-        switch (AppStates.UserState)
+        switch (AppState.UserState)
         {
             case UserState.Logged:
                 routeContainer.SetActive(true);
@@ -72,7 +72,7 @@ public class UIRoutes : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (AppStates.UserState == UserState.Logged)
+        if (AppState.UserState == UserState.Logged)
         {
             prevPageButton.interactable = page > 1;
             nextPageButton.interactable = page - 1 < (_routeList.Count - 1) / noTilesPerPage;
@@ -140,7 +140,7 @@ public class UIRoutes : MonoBehaviour
     {
         Action helperAction = () => StartCoroutine(_OnRouteSelected(route));
 
-        if (AppStates.NavigationState != NavigationState.None)
+        if (AppState.NavigationState != NavigationState.None)
         {
             NotificationService.AddDialog("Navigation", "Another navigation is active. Do you want to cancel it and start a new one?", DialogModal.Buttons.CANCEL_OK, helperAction);
         }
@@ -176,8 +176,8 @@ public class UIRoutes : MonoBehaviour
         }
 
         SessionVariables.Landmarks = landmarks;
-        AppStates.NavigationState = NavigationState.OneByOne;
-        SceneManager.LoadScene(ScenesManager.NAVIGATION);
+        AppState.NavigationState = NavigationState.OneByOne;
+        SceneManager.LoadScene(AppScenes.NAVIGATION);
     }
 
     private void NextPage()

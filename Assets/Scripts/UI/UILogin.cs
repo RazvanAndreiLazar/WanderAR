@@ -43,7 +43,7 @@ public class UILogin : MonoBehaviour
     private void Start()
     {
         errorText.text = "1";
-        AppStates.UserState = UserState.None;
+        AppState.UserState = UserState.None;
         errorText.text = "2";
 
         if (SessionVariables.SessionToken != "")
@@ -118,8 +118,8 @@ public class UILogin : MonoBehaviour
 
         StartCoroutine(_authenticationService.Login(loginEmailInputField.text, loginPasswordInputField.text, 
             () => {
-                AppStates.UserState = UserState.Logged;
-                SceneManager.LoadScene(ScenesManager.MENU);
+                AppState.UserState = UserState.Logged;
+                SceneManager.LoadScene(AppScenes.MENU);
             },
             (err) => SetErrorText(GetErrorString(err))
         ));
@@ -127,17 +127,17 @@ public class UILogin : MonoBehaviour
 
     public void LoginAsGuest()
     {
-        AppStates.UserState = UserState.Guest;
-        SceneManager.LoadScene(ScenesManager.MENU);
-        SetErrorText(ScenesManager.MENU.ToString());
+        AppState.UserState = UserState.Guest;
+        SceneManager.LoadScene(AppScenes.MENU);
+        SetErrorText(AppScenes.MENU.ToString());
     }
 
     public void GetLoggedUser()
     {
         StartCoroutine(_authenticationService.GetLoggedUser(
             () => {
-                AppStates.UserState = UserState.Logged;
-                SceneManager.LoadScene(ScenesManager.MENU);
+                AppState.UserState = UserState.Logged;
+                SceneManager.LoadScene(AppScenes.MENU);
         }));
     }
 

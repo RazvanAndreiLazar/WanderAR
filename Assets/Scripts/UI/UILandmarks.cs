@@ -51,7 +51,7 @@ public class UILandmarks : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (AppStates.UserState == UserState.None)
+        if (AppState.UserState == UserState.None)
             enabled = false;
 
         SetupTiles();
@@ -129,10 +129,10 @@ public class UILandmarks : MonoBehaviour
 
     private IEnumerator ManipulateList(bool globalLandmarks, bool ownLandmarks)
     {
-        if (AppStates.UserState == UserState.None)
+        if (AppState.UserState == UserState.None)
             yield break;
 
-        if (AppStates.UserState == UserState.Guest)
+        if (AppState.UserState == UserState.Guest)
         {
             if (globalLandmarks)
                 yield return _landmarkService.GetAllAvailableLandmarksGuest(UpdateListOfLandmarks, DisplayError);
@@ -251,15 +251,15 @@ public class UILandmarks : MonoBehaviour
             (lmk) =>
             {
                 SessionVariables.Landmarks = new() { Landmark.FromLandmarkDTO(lmk) };
-                AppStates.NavigationState = NavigationState.Singular;
-                SceneManager.LoadScene(ScenesManager.NAVIGATION);
+                AppState.NavigationState = NavigationState.Singular;
+                SceneManager.LoadScene(AppScenes.NAVIGATION);
             },
             ErrorUtils.DisplayError
             ));
         };
 
         
-        if (AppStates.NavigationState != NavigationState.None)
+        if (AppState.NavigationState != NavigationState.None)
         {
             NotificationService.AddDialog("Navigation", "Another navigation is active. Do you want to cancel it and start a new one?", DialogModal.Buttons.CANCEL_OK, helperAction);
         }

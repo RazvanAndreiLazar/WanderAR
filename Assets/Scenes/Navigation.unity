@@ -4406,7 +4406,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   earthManager: {fileID: 1659859600}
   arCoreExtensions: {fileID: 401124117}
-  isDebugging: 1
+  isDebugging: 0
   latitude: 46.77472
   longitude: 23.62172
   altitude: 360

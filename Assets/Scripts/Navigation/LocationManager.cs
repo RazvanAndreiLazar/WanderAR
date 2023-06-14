@@ -34,12 +34,17 @@ public class LocationManager : MonoBehaviour
 
     private Coroutine _startLocationService;
 
+    private Quaternion? _initialHeading = null;
+    private Quaternion? _initialRotation = null;
+
+    private bool _messageDisplayed = false;
+
     #region Tresholds
     /// <summary>
     /// Accuracy threshold for orientation yaw accuracy in degrees that can be treated as
     /// localization completed.
     /// </summary>
-    private const double _orientationYawAccuracyThreshold = 25;
+    private const double ORIENTATION_YAW_ACCURACY_TRESHOLD = 25;
 
     /// <summary>
     /// Accuracy threshold for heading degree that can be treated as localization completed.
@@ -50,12 +55,12 @@ public class LocationManager : MonoBehaviour
     /// Accuracy threshold for altitude and longitude that can be treated as localization
     /// completed.
     /// </summary>
-    private const double _horizontalAccuracyThreshold = 20;
+    private const double HORIZONTAL_ACCURACY_TRESHOLD = 20;
 
     /// <summary>
     /// The timeout period waiting for localization to be completed.
     /// </summary>
-    private const float _timeoutSeconds = 180;
+    private const float _timeoutSeconds = 60;
     #endregion
 
     private void Awake()
@@ -99,6 +104,7 @@ public class LocationManager : MonoBehaviour
 
         }
 
+        IsTracking = false;
         Debug.Log("Stop location services.");
         Input.location.Stop();
     }
@@ -107,6 +113,7 @@ public class LocationManager : MonoBehaviour
     {
 #if UNITY_EDITOR
         DisplayOnDebug("Location service is disabled because running in Windows.");
+        IsTracking = true;
         yield break;
 #endif
 
@@ -139,6 +146,7 @@ public class LocationManager : MonoBehaviour
             DisplayOnDebug($"Location service ends with {Input.location.status} status.");
             Input.location.Stop();
         }
+
     }
 
 
@@ -179,9 +187,12 @@ public class LocationManager : MonoBehaviour
         var pose = earthTrackingState == TrackingState.Tracking ?
             earthManager.CameraGeospatialPose : new GeospatialPose();
         if (!isSessionReady || earthTrackingState != TrackingState.Tracking ||
-            pose.OrientationYawAccuracy > _orientationYawAccuracyThreshold ||
-            pose.HorizontalAccuracy > _horizontalAccuracyThreshold)
+            pose.OrientationYawAccuracy > ORIENTATION_YAW_ACCURACY_TRESHOLD ||
+            pose.HorizontalAccuracy > HORIZONTAL_ACCURACY_TRESHOLD)
         {
+            NotificationService.DisplayOnTop($"{pose.OrientationYawAccuracy > ORIENTATION_YAW_ACCURACY_TRESHOLD}\n{pose.HorizontalAccuracy > HORIZONTAL_ACCURACY_TRESHOLD}\n" +
+                $"{!isSessionReady || earthTrackingState != TrackingState.Tracking}");
+
             if (!_isLocalizing)
             {
                 _isLocalizing = true;
@@ -191,14 +202,16 @@ public class LocationManager : MonoBehaviour
             if (_localizationPassedTime > _timeoutSeconds)
             {
                 DisplayOnDebug("Geospatial sample localization passed timeout.");
-                return;
                 //ReturnWithReason("Cannot localise");
             }
             else
             {
                 _localizationPassedTime += Time.deltaTime;
-                NotificationService.DisplayOnTop("Point your camera at buildings, stores, and signs near you.");
+                NotificationService.DisplayOnTop($"Point your camera at buildings, stores, and signs near you.");
+                _messageDisplayed = true;
             }
+            IsTracking = false;
+            return;
         }
         else if (_isLocalizing)
         {
@@ -213,11 +226,22 @@ public class LocationManager : MonoBehaviour
         // update location
         if (earthTrackingState == TrackingState.Tracking)
         {
+            if (_messageDisplayed)
+            {
+                NotificationService.DisplayOnTop($"");
+                _messageDisplayed = false;
+            }
             IsTracking = true;
             Location = new WorldCoordinates((float)pose.Latitude, (float)pose.Longitude, (float)pose.Altitude);
             Heading = pose.EunRotation;
 
-            DisplayOnDebug($"(lat: {Location.Latitude}, lon: {Location.Longitude}, alt: {Location.Altitude})\nHeading{Heading}");
+            if (_initialHeading == null)
+            {
+                _initialRotation = gameObject.transform.GetChild(0).rotation;
+                _initialHeading = pose.EunRotation;
+            }
+            var so = gameObject.transform.GetChild(0);
+            DisplayOnDebug($"{_initialHeading}\n{_initialRotation}\n({Location.Latitude}, {Location.Longitude}, {Location.Altitude})\n{Heading}\n({so.position.x:0.####}, {so.position.y:0.####}, {so.position.z:0.####})\n{so.rotation}");
         }
     }
 
@@ -231,7 +255,7 @@ public class LocationManager : MonoBehaviour
         var earthState = earthManager.EarthState;
         if (earthState == EarthState.ErrorEarthNotReady)
         {
-            DisplayOnDebug("Initializing");
+            NotificationService.DisplayOnTop("Initializing");
             return false;
         }
         
@@ -239,7 +263,7 @@ public class LocationManager : MonoBehaviour
         {
             string errorMessage =
                 "Geospatial sample encountered an EarthState error: " + earthState;
-            DisplayOnDebug(errorMessage);
+                NotificationService.DisplayOnTop(errorMessage);
             return false;
         }
         return true;
@@ -267,7 +291,7 @@ public class LocationManager : MonoBehaviour
             case FeatureSupported.Unknown:
                 return false;
             case FeatureSupported.Unsupported:
-                DisplayOnDebug("Geospatial API is not available on this device");
+                NotificationService.DisplayOnTop("Geospatial API is not available on this device");
                 return false;
             default:
                 break;

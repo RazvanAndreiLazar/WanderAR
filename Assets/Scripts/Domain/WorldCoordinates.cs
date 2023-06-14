@@ -50,5 +50,10 @@ namespace Assets.Scripts.Domain
             _longitude = longitude;
             Altitude = altitude;
         }
+
+        public override string ToString()
+        {
+            return $"{_latitude}, {_longitude}, {Altitude}";
+        }
     }
 }

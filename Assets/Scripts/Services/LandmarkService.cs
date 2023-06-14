@@ -36,10 +36,10 @@ namespace Assets.Scripts.Services
 
         public IEnumerator GetLandmark(int landmarkId, Action<LandmarkDTO> callback, Action<ErrorDTO> errorCallback)
         {
-            if (AppStates.UserState == UserState.Guest) 
+            if (AppState.UserState == UserState.Guest) 
                 yield return WebUtils.Get($"{BASE_ENDPOINT}/{landmarkId}",
                     callback: callback, errorCallback: errorCallback);
-            if (AppStates.UserState == UserState.Logged)
+            if (AppState.UserState == UserState.Logged)
                 yield return WebUtils.Get($"{BASE_ENDPOINT}/{landmarkId}", SessionVariables.SessionToken, 
                     callback: callback, errorCallback: errorCallback);
         }
