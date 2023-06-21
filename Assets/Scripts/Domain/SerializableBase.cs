@@ -24,8 +24,16 @@ namespace Assets.Scripts.Domain
 
         public static bool TryDeserialize(string str, out T obj)
         {
-            obj = JsonConvert.DeserializeObject<T>(str);
-            return obj != null;
+            try
+            {
+                obj = JsonConvert.DeserializeObject<T>(str);
+                return obj != null;
+            }
+            catch (Exception)
+            {
+                obj = null;
+                return false;
+            }
         }
     }
 }

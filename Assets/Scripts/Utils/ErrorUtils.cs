@@ -14,7 +14,10 @@ namespace Assets.Scripts.Utils
         {
             var errStr = string.Concat(error?.Errors?["$"]);
 
-            NotificationService.AddDialog(error.Title, errStr, DialogModal.Buttons.OK);
+            if (errStr == "Request timeout") errStr = "Cannot connect to the server";
+
+            //NotificationService.AddDialog(error.Title, errStr, DialogModal.Buttons.OK);
+            NotificationService.AddDialog("ERROR", errStr, DialogModal.Buttons.OK);
         }
         public static void DisplayError(string error)
         {

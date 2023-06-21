@@ -25,6 +25,8 @@ public class UILandmarks : MonoBehaviour
     public Button nextPageButton;
     public Button prevPageButton;
 
+    public Button refreshButton;
+
     public GameObject disabledTrashCan;
 
     public GameObject dropdown;
@@ -46,6 +48,9 @@ public class UILandmarks : MonoBehaviour
 
     private float lastDistanceUpdate;
     private const float DISTANCE_UPDATE_DELTA = 10000;
+
+
+    public Coroutine manipulateListCoroutine;
     #endregion
 
     // Start is called before the first frame update
@@ -66,6 +71,19 @@ public class UILandmarks : MonoBehaviour
 
         nextPageButton.onClick.AddListener(NextPage);
         prevPageButton.onClick.AddListener(PrevPage);
+        refreshButton.onClick.AddListener(OnRefreshClicked);
+    }
+
+    private void OnEnable()
+    {
+        Input.location.Start();
+        OnFilterChanged(dropdown.GetComponent<FilterSortDropdown>().ActiveFilters);
+    }
+
+    private void OnDisable()
+    {
+        StopCoroutine(manipulateListCoroutine);
+        Input.location.Stop();
     }
 
     // Update is called once per frame
@@ -80,7 +98,7 @@ public class UILandmarks : MonoBehaviour
         var global = filters.Contains(Filters.Global);
         var own = filters.Contains(Filters.Own);
 
-        StartCoroutine(ManipulateList(global, own));
+        manipulateListCoroutine = StartCoroutine(ManipulateList(global, own));
     }
 
     private void OnSortChanged(Sorts sort)
@@ -120,22 +138,28 @@ public class UILandmarks : MonoBehaviour
 
     private void UpdateLandmarkDistances()
     {
+        var loc = LocationManager.Location;
+        if (loc == null)
+            loc = new(Input.location.lastData.latitude, Input.location.lastData.longitude, Input.location.lastData.altitude);
+
         if (Time.time - lastDistanceUpdate > DISTANCE_UPDATE_DELTA)
         {
-            landmarkList.ForEach(lmk => lmk.Distance = CoordinatesUtils.DistanceBetweenPoints(lmk.Landmark.Coordinates, LocationManager.Location));
+            landmarkList.ForEach(lmk => lmk.Distance = CoordinatesUtils.DistanceBetweenPoints(lmk.Landmark.Coordinates, loc));
             lastDistanceUpdate = Time.time;
         }
     }
 
     private IEnumerator ManipulateList(bool globalLandmarks, bool ownLandmarks)
     {
+        NotificationService.ShowLoadingScreen();
+
         if (AppState.UserState == UserState.None)
             yield break;
 
         if (AppState.UserState == UserState.Guest)
         {
             if (globalLandmarks)
-                yield return _landmarkService.GetAllAvailableLandmarksGuest(UpdateListOfLandmarks, DisplayError);
+                yield return _landmarkService.GetAllAvailableLandmarksGuest(UpdateListOfLandmarks, ListErrorHandler);
             else
             {
                 UpdateListOfLandmarks(new List<NoModelLandmarkDTO>());
@@ -145,15 +169,15 @@ public class UILandmarks : MonoBehaviour
 
         if (globalLandmarks && ownLandmarks)
         {
-            yield return _landmarkService.GetAllAvailableLandmarks(UpdateListOfLandmarks, DisplayError);
+            yield return _landmarkService.GetAllAvailableLandmarks(UpdateListOfLandmarks, ListErrorHandler);
         }
         else if (globalLandmarks)
         {
-            yield return _landmarkService.GetGlobalLandmarks(UpdateListOfLandmarks, DisplayError);
+            yield return _landmarkService.GetGlobalLandmarks(UpdateListOfLandmarks, ListErrorHandler);
         }
         else if (ownLandmarks)
         {
-            yield return _landmarkService.GetOwnLandmarks(UpdateListOfLandmarks, DisplayError);
+            yield return _landmarkService.GetOwnLandmarks(UpdateListOfLandmarks, ListErrorHandler);
         }
         else
         {
@@ -163,17 +187,25 @@ public class UILandmarks : MonoBehaviour
 
     private void UpdateListOfLandmarks(IEnumerable<NoModelLandmarkDTO> landmarks)
     {
+        NotificationService.HideLoadingScreen();
+        var loc = LocationManager.Location;
+        if (loc == null)
+        {
+            loc = new(Input.location.lastData.latitude, Input.location.lastData.longitude, Input.location.lastData.altitude);
+            Input.location.Stop();
+        }
+
         _landmarkList = new List<NoModelLandmarkDTO>(landmarks).ConvertAll(
             l => {
                 var lmk = Landmark.FromNoModelLandmarkDTO(l);
                 return new LandmarkWithDistance
                 {
                     Landmark = lmk,
-                    Distance = CoordinatesUtils.DistanceBetweenPoints(lmk.Coordinates, LocationManager.Location)
+                    Distance = CoordinatesUtils.DistanceBetweenPoints(lmk.Coordinates, loc)
                 };
             });
         lastDistanceUpdate = Time.time;
-
+        
         OnSearchTextChanged(searchbar.GetComponent<Searchbar>().SearchText);
         //OnSortChanged(dropdown.GetComponent<FilterSortDropdown>().SortMode);
     }
@@ -181,12 +213,20 @@ public class UILandmarks : MonoBehaviour
 
     private void OnListOfLandmarksUpdated()
     {
+        refreshButton.gameObject.SetActive(_landmarkList.Count == 0);
         page = 1;
         OnPageChanged();
     }
 
+    private void ListErrorHandler(ErrorDTO error)
+    {
+        UpdateListOfLandmarks(new List<NoModelLandmarkDTO>());
+        ErrorUtils.DisplayError(error);
+    }
+
     private void DisplayError(ErrorDTO error)
     {
+        NotificationService.HideLoadingScreen();
         ErrorUtils.DisplayError(error);
     }
 
@@ -247,14 +287,16 @@ public class UILandmarks : MonoBehaviour
     {
         Action helperAction = () =>
         {
+            NotificationService.ShowLoadingScreen();
             StartCoroutine(_landmarkService.GetLandmark(selectedLandmark.Landmark.Id,
             (lmk) =>
             {
+                NotificationService.HideLoadingScreen();
                 SessionVariables.Landmarks = new() { Landmark.FromLandmarkDTO(lmk) };
                 AppState.NavigationState = NavigationState.Singular;
                 SceneManager.LoadScene(AppScenes.NAVIGATION);
             },
-            ErrorUtils.DisplayError
+            DisplayError
             ));
         };
 
@@ -276,10 +318,17 @@ public class UILandmarks : MonoBehaviour
             StartCoroutine(_landmarkService.DeleteLandmark(landmark.Landmark.Id,
                 () =>
                 {
+                    NotificationService.AddToast($"{landmark.Landmark.Name} deleted");
                     landmarkList.Remove(landmark);
                     OnListOfLandmarksUpdated();
-                }, 
+                },
                 ErrorUtils.DisplayError));
         });
+    }
+
+    public void OnRefreshClicked()
+    {
+        refreshButton.gameObject.SetActive(false);
+        OnFilterChanged(dropdown.GetComponent<FilterSortDropdown>().ActiveFilters);
     }
 }

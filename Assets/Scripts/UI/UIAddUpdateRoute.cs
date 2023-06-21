@@ -41,7 +41,6 @@ public class UIAddUpdateRoute : MonoBehaviour
     
     private RouteLandmarkListElement[] _listElements;
     private RouteService _routeService = RouteService.Instance;
-    private string _routeName = string.Empty;
 
     private int page = 1;
 
@@ -88,12 +87,20 @@ public class UIAddUpdateRoute : MonoBehaviour
     {
         titleTxt.text = "Update route";
         _addOrUpdate = AddOrUpdate.Update;
-        StartCoroutine(_routeService.GetRoute(routeId, UpdateRouteLandmarks, ErrorUtils.DisplayError));
+        NotificationService.ShowLoadingScreen();
+        StartCoroutine(_routeService.GetRoute(routeId, UpdateRouteLandmarks, 
+            err => {
+                NotificationService.HideLoadingScreen();
+                ErrorUtils.DisplayError(err);
+                Exit();
+            }
+        ));
     }
 
 
     private void UpdateRouteLandmarks(RouteWithLandmarksDTO route)
     {
+        NotificationService.HideLoadingScreen();
         nameTxt.text = route.Name;
         _route = route;
         OnListModified();
@@ -154,6 +161,9 @@ public class UIAddUpdateRoute : MonoBehaviour
 
     private void CommitUpdateRoute()
     {
+        if (!CheckRouteValidity()) return;
+
+        NotificationService.ShowLoadingScreen();
         StartCoroutine(_routeService.UpdateRoute(
             new RouteUpdateDTO
             {
@@ -163,6 +173,7 @@ public class UIAddUpdateRoute : MonoBehaviour
             },
             r =>
             {
+                NotificationService.HideLoadingScreen();
                 _route = r;
                 Exit();
                 SuccessAction.Invoke(new RouteDTO
@@ -174,12 +185,15 @@ public class UIAddUpdateRoute : MonoBehaviour
                     NoLandmarks = r.Landmarks.Count
                 });
             },
-            ErrorUtils.DisplayError
+            err => { NotificationService.HideLoadingScreen(); ErrorUtils.DisplayError(err); }
         ));
     }
 
     private void CommitAddRoute()
     {
+        if (!CheckRouteValidity()) return;
+
+        NotificationService.ShowLoadingScreen();
         StartCoroutine(_routeService.AddRoute(
             new RouteAddDTO
             {
@@ -188,6 +202,7 @@ public class UIAddUpdateRoute : MonoBehaviour
             },
             r =>
             {
+                NotificationService.HideLoadingScreen();
                 _route = r;
                 Exit();
                 SuccessAction.Invoke(new RouteDTO
@@ -199,8 +214,21 @@ public class UIAddUpdateRoute : MonoBehaviour
                     NoLandmarks = r.Landmarks.Count
                 });
             },
-            ErrorUtils.DisplayError
+            err => { NotificationService.HideLoadingScreen(); ErrorUtils.DisplayError(err); }
         ));
+    }
+
+    private bool CheckRouteValidity()
+    {
+        var errMsg = "";
+        if (_route.Name == "") errMsg += "Route name cannot be empty.\n";
+        if (_route.Landmarks.Count == 0) errMsg += "Route must contain at least one landmark.\n";
+
+        if (errMsg == "")
+            return true;
+
+        ErrorUtils.DisplayError(errMsg);
+        return false;
     }
 
     private void Exit()

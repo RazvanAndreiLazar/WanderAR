@@ -10,14 +10,28 @@ using UnityEngine;
 
 public class ProximityNav : NavBase
 {
-    //private WorldCoordinates initialCameraCoords;
-
     private Coroutine getLandmarksCoroutine;
 
     private LandmarkService _landmarkService = LandmarkService.Instance;
 
+    private bool isGettingLandmarks = false;
+
+    private GameObject actualCamera => camera.transform.GetChild(0).gameObject;
+
+
+    protected override void NavigationSetup()
+    {
+        movingCoroutineTimeout = 5f;
+    }
+
+    protected override void StopCleanup()
+    {
+        if (getLandmarksCoroutine != null) StopCoroutine(getLandmarksCoroutine);
+    }
+
     private void GetProximityLandmarks()
     {
+        isGettingLandmarks = true;
         if (!LocationManager.IsTracking) return;
 
         var cameraCoords = LocationManager.Location;
@@ -36,15 +50,25 @@ public class ProximityNav : NavBase
 
 
                 pastLandmarks.ForEach(l => Destroy(l.ModelObject));
-            },
-            (err) =>
-            {
 
-            }
+                isGettingLandmarks = false;
+            },
+            ErrorUtils.DisplayError
         ));
     }
 
-    protected override void MoveAction() => GetProximityLandmarks();
+    protected override void MoveAction()
+    {
+        if (!LocationManager.IsTracking) return;
+
+        if (!isGettingLandmarks)
+            GetProximityLandmarks();
+
+        if (Mathf.Abs(PositioningUtils.AngleDiff(
+            actualCamera.transform.eulerAngles.y,
+            LocationManager.Heading.eulerAngles.y)) > 5)
+            PositioningUtils.AdjustRotation(camera);
+    }
     protected override void MoveCleanup() => StopCoroutine(getLandmarksCoroutine);
     
 }

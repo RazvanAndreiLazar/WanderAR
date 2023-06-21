@@ -34,13 +34,21 @@ namespace Assets.Scripts.Services
 
             public float Duration { get; set; }
 
-            public ToastItem(string text) : this(text, 3) { }
+            public ToastItem(string text) : this(text, 2) { }
             public ToastItem(string text, float duration)
             {
                 Text = text;
                 Duration = duration;
             }
         }
+
+        #region LoadingScreen
+        public static bool LoadingScreen { get; private set; }
+        public static void ShowLoadingScreen() => LoadingScreen = true;
+        public static void HideLoadingScreen() => LoadingScreen = false;
+        
+
+        #endregion
 
         #region Dialog
 
@@ -65,6 +73,7 @@ namespace Assets.Scripts.Services
         public static bool IsToastQueueEmpty => _toastQueue.Count == 0;
         public static int ToastQueueCount => _toastQueue.Count;
         public static void AddToast(string text) => _toastQueue.Enqueue(new(text));
+        public static void AddToast(string text, float duration) => _toastQueue.Enqueue(new(text, duration));
         public static ToastItem GetToast() => _toastQueue.Dequeue();
 
         private static List<Action<ToastItem>> _listeners = new();
@@ -74,7 +83,37 @@ namespace Assets.Scripts.Services
         {
             _listeners.ForEach(l => l?.Invoke(new(text)));
         }
+        public static void DisplayOnTop(string text, float duration)
+        {
+            _listeners.ForEach(l => l?.Invoke(new(text, duration)));
+        }
+        
+        public static void HideToast()
+        {
+            _listeners.ForEach(l => l?.Invoke(new("")));
+        }
         #endregion
 
+        #region Debugging
+
+        public static void DebugDialog(string text)
+        {
+            if (SessionVariables.IsDebugging)
+                AddDialog("Debugging", text, Buttons.OK);
+        }
+
+        public static void DebugToastShort(string text)
+        {
+            if (SessionVariables.IsDebugging)
+                DisplayOnTop(text, 1);
+        }
+
+        public static void DebugToastLong(string text)
+        {
+            if (SessionVariables.IsDebugging)
+                DisplayOnTop(text, 10);
+        }
+
+        #endregion
     }
 }

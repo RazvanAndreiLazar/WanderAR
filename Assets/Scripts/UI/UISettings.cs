@@ -12,6 +12,7 @@ public class UISettings : MonoBehaviour
 {
     public Button logoutButton;
     public TMP_Text emailText;
+    public Button isDebuggingButton;
 
     private void SetEmailText(string email)
     {
@@ -40,6 +41,9 @@ public class UISettings : MonoBehaviour
         }
 
         logoutButton.onClick.AddListener(OnLogoutClick);
+
+        DisplayCheckmark();
+        isDebuggingButton.onClick.AddListener(OnIsDebuggingClick);
     }
 
     private void OnLogoutClick()
@@ -58,4 +62,23 @@ public class UISettings : MonoBehaviour
         NotificationService.AddDialog("User", "Are you sure you want to log out?", DialogModal.Buttons.CANCEL_OK, helperAction);
     }
 
+    private void DisplayCheckmark()
+    {
+        if (SessionVariables.IsDebugging)
+        {
+            isDebuggingButton.gameObject.transform.GetChild(0).gameObject.SetActive(true);
+            isDebuggingButton.gameObject.transform.GetChild(1).gameObject.SetActive(false);
+        }
+        else
+        {
+            isDebuggingButton.gameObject.transform.GetChild(0).gameObject.SetActive(false);
+            isDebuggingButton.gameObject.transform.GetChild(1).gameObject.SetActive(true);
+        }
+    }
+
+    private void OnIsDebuggingClick()
+    {
+        SessionVariables.IsDebugging = !SessionVariables.IsDebugging;
+        DisplayCheckmark();
+    }
 }

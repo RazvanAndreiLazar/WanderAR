@@ -10,6 +10,8 @@ namespace Assets.Scripts.Utils
 {
     public class WebUtils : MonoBehaviour
     {
+        private const int REQUEST_TIMEOUT = 10;
+
         private static string baseUrl => SessionVariables.SERVER_URL;
 
         private static UnityWebRequest SetupPostRequest<T>(string endpoint, SerializableBase<T> body, string authToken) where T : SerializableBase<T>
@@ -18,6 +20,7 @@ namespace Assets.Scripts.Utils
             request.method = "POST";
             request.SetRequestHeader("Content-Type", "application/json");
             request.SetRequestHeader("Accept", "*/*");
+            request.timeout = REQUEST_TIMEOUT;
 
             if (authToken != null)
                 request.SetRequestHeader("Authorization", $"Bearer {authToken}");
@@ -36,7 +39,11 @@ namespace Assets.Scripts.Utils
                 if (ErrorDTO.TryDeserialize(request.downloadHandler.text, out ErrorDTO err))
                     errorCallback?.Invoke(err);
                 else
-                    ErrorUtils.DisplayError(request.error);
+                    errorCallback?.Invoke(new()
+                    {
+                        Errors = new() { { "$", new string[] { request.error } } },
+                        Title = "ERROR"
+                    });
             }
         }
 
@@ -53,7 +60,11 @@ namespace Assets.Scripts.Utils
                 if (ErrorDTO.TryDeserialize(request.downloadHandler.text, out ErrorDTO err))
                     errorCallback?.Invoke(err);
                 else
-                    ErrorUtils.DisplayError(request.error);
+                    errorCallback?.Invoke(new()
+                    {
+                        Errors = new() { { "$", new string[] { request.error } } },
+                        Title = "ERROR"
+                    });
             }
         }
      
@@ -71,6 +82,7 @@ namespace Assets.Scripts.Utils
             UnityWebRequest request = UnityWebRequest.Put(baseUrl + endpoint, body.Serialized());
             request.SetRequestHeader("Content-Type", "application/json");
             request.SetRequestHeader("Accept", "*/*");
+            request.timeout = REQUEST_TIMEOUT;
 
             if (authToken != null)
                 request.SetRequestHeader("Authorization", $"Bearer {authToken}");
@@ -84,6 +96,7 @@ namespace Assets.Scripts.Utils
         {
             UnityWebRequest request = UnityWebRequest.Get(baseUrl + endpoint);
             request.SetRequestHeader("Accept", "*/*");
+            request.timeout = REQUEST_TIMEOUT;
 
             if (authToken != null)
                 request.SetRequestHeader("Authorization", $"Bearer {authToken}");
@@ -97,6 +110,7 @@ namespace Assets.Scripts.Utils
         {
             UnityWebRequest request = UnityWebRequest.Get(baseUrl + endpoint);
             request.SetRequestHeader("Accept", "*/*");
+            request.timeout = REQUEST_TIMEOUT;
 
             if (authToken != null)
                 request.SetRequestHeader("Authorization", $"Bearer {authToken}");
@@ -108,8 +122,12 @@ namespace Assets.Scripts.Utils
      
         public static IEnumerator Delete(string endpoint, string authToken = null, Action callback = null, Action<ErrorDTO> errorCallback = null)
         {
-            UnityWebRequest request = UnityWebRequest.Delete(baseUrl + endpoint);
+            UnityWebRequest request = UnityWebRequest.Put(baseUrl + endpoint, "");
+            request.method = "DELETE";
             request.SetRequestHeader("Accept", "*/*");
+            request.timeout = REQUEST_TIMEOUT;
+            //UnityWebRequest request = UnityWebRequest.Delete(baseUrl + endpoint);
+            //request.SetRequestHeader("Accept", "*/*");
 
             if (authToken != null)
                 request.SetRequestHeader("Authorization", $"Bearer {authToken}");

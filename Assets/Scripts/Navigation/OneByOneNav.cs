@@ -11,6 +11,7 @@ public class OneByOneNav : NavBase
     private NavigationLandmarkObject lnavObj;
 
     private bool isCalibrated;
+    private GameObject actualCamera => camera.transform.GetChild(0).gameObject;
 
     protected override void NavigationSetup()
     {
@@ -40,6 +41,7 @@ public class OneByOneNav : NavBase
         if (!LocationManager.IsTracking)
         {
             isCalibrated = false;
+            lnavObj?.Hide();
             return;
         }
         
@@ -57,5 +59,9 @@ public class OneByOneNav : NavBase
             //ErrorUtils.DisplayError($"Session origin rotation: {camera.transform.rotation}\ncamera rotation: {camera.transform.GetChild(0).rotation}\n{actualCamera.transform.localEulerAngles.y}\n" +
             //    $"{camera.transform.eulerAngles.y}-{actualCamera.transform.eulerAngles.y} = {camera.transform.eulerAngles.y - actualCamera.transform.eulerAngles.y}");
         }
+        else if (Mathf.Abs(PositioningUtils.AngleDiff(
+            actualCamera.transform.eulerAngles.y,
+            LocationManager.Heading.eulerAngles.y)) > 5)
+            PositioningUtils.AdjustRotation(camera);
     }
 }

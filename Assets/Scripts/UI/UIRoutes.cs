@@ -6,6 +6,7 @@ using Assets.Scripts.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -22,7 +23,9 @@ public class UIRoutes : MonoBehaviour
 
     public Button nextPageButton; 
     public Button prevPageButton; 
-    public Button addRouteButton; 
+    public Button addRouteButton;
+
+    public Button refreshButton;
 
     public GameObject disabledTrashCan;
 
@@ -37,6 +40,8 @@ public class UIRoutes : MonoBehaviour
     private RouteService _routeService = RouteService.Instance;
     private LandmarkService _landmarkService = LandmarkService.Instance;
 
+    private Coroutine manipulateListCoroutine;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -45,13 +50,14 @@ public class UIRoutes : MonoBehaviour
         nextPageButton.onClick.AddListener(NextPage);
         prevPageButton.onClick.AddListener(PrevPage);
         addRouteButton.onClick.AddListener(OnAddRoutePressed);
+        refreshButton.onClick.AddListener(OnRefreshClicked);
 
         switch (AppState.UserState)
         {
             case UserState.Logged:
                 routeContainer.SetActive(true);
                 guestTextPrompt.SetActive(false);
-                StartCoroutine(ManipulateList());
+                manipulateListCoroutine = StartCoroutine(ManipulateList());
                 break;
             case UserState.Guest:
                 addRouteButton.interactable = false;
@@ -66,6 +72,17 @@ public class UIRoutes : MonoBehaviour
             default:
                 break;
         }
+    }
+
+    private void OnEnable()
+    {
+        manipulateListCoroutine = StartCoroutine(ManipulateList());
+    }
+
+    private void OnDisable()
+    {
+        if (manipulateListCoroutine != null)
+            StopCoroutine(manipulateListCoroutine);
     }
 
 
@@ -101,7 +118,11 @@ public class UIRoutes : MonoBehaviour
                 comp.SuccessAction = route =>
                 {
                     // TODO Change: add route to list manually and trigger a list update without querying the server
-                    StartCoroutine(ManipulateList());
+                    var listIndex = j + (page - 1) * noTilesPerPage;
+                    NotificationService.AddToast($"Route updated: {_routeList[listIndex].Name} -> {route.Name}");
+                    _routeList[listIndex] = route;
+                    UpdateListOfRoutes(_routeList);
+                    // StartCoroutine(ManipulateList());
                 };
                 comp.UpdateRoute(route.Id);
             };
@@ -111,7 +132,9 @@ public class UIRoutes : MonoBehaviour
                     () => {
                         StartCoroutine(_routeService.DeleteRoute(route.Id,
                         () => {
-                            StartCoroutine(ManipulateList());
+                            NotificationService.AddToast($"Route {route.Name} deleted");
+                            UpdateListOfRoutes( _routeList.Where(r => r.Id != route.Id).ToList() );
+                            //StartCoroutine(ManipulateList());
                         },
                         ErrorUtils.DisplayError
                     ));
@@ -126,12 +149,21 @@ public class UIRoutes : MonoBehaviour
 
     private IEnumerator ManipulateList()
     {
-        yield return _routeService.GetRoutes(UpdateListOfRoutes, ErrorUtils.DisplayError);
+        NotificationService.ShowLoadingScreen();
+
+        yield return _routeService.GetRoutes(UpdateListOfRoutes,
+        (err) =>
+        {
+            UpdateListOfRoutes(new List<RouteDTO>());
+            ErrorUtils.DisplayError(err);
+        });
     }
 
     private void UpdateListOfRoutes(IEnumerable<RouteDTO> routes)
     {
         _routeList = new List<RouteDTO>(routes);
+        refreshButton.gameObject.SetActive(_routeList.Count == 0);
+        NotificationService.HideLoadingScreen();
         page = 1;
         OnPageChanged();
     }
@@ -152,9 +184,10 @@ public class UIRoutes : MonoBehaviour
 
     private IEnumerator _OnRouteSelected(RouteDTO route)
     {
+        NotificationService.ShowLoadingScreen();
         RouteWithLandmarksDTO r = null;
 
-        yield return _routeService.GetRoute(route.Id, _route => r = _route, ErrorUtils.DisplayError);
+        yield return _routeService.GetRoute(route.Id, _route => r = _route, DisplayServerError);
 
         List<Landmark> landmarks = new();
 
@@ -171,13 +204,20 @@ public class UIRoutes : MonoBehaviour
                     Size = new(_landmark.SizeX, _landmark.SizeY, _landmark.SizeZ),
                     Model = _landmark.Model
                 }),
-                ErrorUtils.DisplayError
+                DisplayServerError
             );
         }
 
+        NotificationService.HideLoadingScreen();
         SessionVariables.Landmarks = landmarks;
         AppState.NavigationState = NavigationState.OneByOne;
         SceneManager.LoadScene(AppScenes.NAVIGATION);
+    }
+
+    private void DisplayServerError(ErrorDTO error)
+    {
+        NotificationService.HideLoadingScreen();
+        ErrorUtils.DisplayError(error);
     }
 
     private void NextPage()
@@ -209,8 +249,17 @@ public class UIRoutes : MonoBehaviour
         comp.SuccessAction = route =>
         {
             // TODO Change: add route to list manually and trigger a list update without querying the server
-            StartCoroutine(ManipulateList());
+            NotificationService.AddToast($"Route {route.Name} added");
+            _routeList.Add(route);
+            UpdateListOfRoutes(_routeList);
         };
         comp.AddRoute();
+    }
+
+    public void OnRefreshClicked()
+    {
+        refreshButton.gameObject.SetActive(false);
+        StopCoroutine(manipulateListCoroutine);
+        manipulateListCoroutine = StartCoroutine(ManipulateList());
     }
 }

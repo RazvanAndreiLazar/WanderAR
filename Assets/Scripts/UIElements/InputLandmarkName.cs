@@ -1,4 +1,5 @@
 using Assets.Scripts.Services;
+using Assets.Scripts.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -34,8 +35,12 @@ public class InputLandmarkName : MonoBehaviour
 
     private void Submit()
     {
-        StartCoroutine(LandmarkService.Instance.DropPin(nameInput.text, lmk => {
-            Hide();
-        }, err => { }));
+        StartCoroutine(
+            LandmarkService.Instance.DropPin(nameInput.text, 
+            lmk => {
+                NotificationService.AddToast($"{lmk.Name} added");
+            }, 
+            ErrorUtils.DisplayError));
+        Hide();
     }
 }

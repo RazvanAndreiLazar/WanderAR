@@ -1,5 +1,6 @@
 using Assets.Scripts.Domain;
 using Assets.Scripts.Services;
+using Assets.Scripts.Utils;
 using Google.XR.ARCoreExtensions;
 using System;
 using System.Collections;
@@ -11,7 +12,12 @@ using UnityEngine.XR.ARSubsystems;
 
 public class LocationManager : MonoBehaviour
 {
+#if UNITY_EDITOR
     public static WorldCoordinates Location { get; private set; } = new(46.77472f, 23.62172f, 360);
+#else
+    public static WorldCoordinates Location { get; private set; } = null;
+#endif
+
     public static Quaternion Heading { get; private set; }
     public static bool IsTracking { get; private set; } = false;
 
@@ -90,7 +96,7 @@ public class LocationManager : MonoBehaviour
         _localizationPassedTime = 0f;
         _isLocalizing = true;
 
-        DisplayOnDebug("Localising");
+        NotificationService.DebugToastLong("Localising");
 
         _isEnabled = true;
     }
@@ -112,7 +118,7 @@ public class LocationManager : MonoBehaviour
     private IEnumerator StartLocationService()
     {
 #if UNITY_EDITOR
-        DisplayOnDebug("Location service is disabled because running in Windows.");
+        NotificationService.DebugToastLong("Location service is disabled because running in Windows.");
         IsTracking = true;
         yield break;
 #endif
@@ -128,22 +134,22 @@ public class LocationManager : MonoBehaviour
 
         if (!Input.location.isEnabledByUser)
         {
-            DisplayOnDebug("Location service is disabled by User.");
+            ErrorUtils.DisplayError("Location service is disabled by User.");
             yield break;
         }
 
-        DisplayOnDebug("Start location service.");
+        NotificationService.DebugToastShort("Start location service.");
         Input.location.Start();
 
         while (Input.location.status == LocationServiceStatus.Initializing)
         {
-            DisplayOnDebug("Initializing");
+            NotificationService.DebugToastShort("Initializing");
             yield return null;
         }
 
         if (Input.location.status != LocationServiceStatus.Running)
         {
-            DisplayOnDebug($"Location service ends with {Input.location.status} status.");
+            NotificationService.DebugToastShort($"Location service ends with {Input.location.status} status.");
             Input.location.Stop();
         }
 
@@ -201,13 +207,13 @@ public class LocationManager : MonoBehaviour
 
             if (_localizationPassedTime > _timeoutSeconds)
             {
-                DisplayOnDebug("Geospatial sample localization passed timeout.");
+                ErrorUtils.DisplayError("Geospatial sample localization passed timeout.");
                 //ReturnWithReason("Cannot localise");
             }
             else
             {
                 _localizationPassedTime += Time.deltaTime;
-                NotificationService.DisplayOnTop($"Point your camera at buildings, stores, and signs near you.");
+                NotificationService.DisplayOnTop("Point your camera at buildings, stores, and signs near you.");
                 _messageDisplayed = true;
             }
             IsTracking = false;
@@ -218,7 +224,7 @@ public class LocationManager : MonoBehaviour
             // Finished localization.
             _isLocalizing = false;
             _localizationPassedTime = 0f;
-            DisplayOnDebug("Localisation success");
+            NotificationService.DebugToastShort("Localisation success");
         }
 
         #endregion
@@ -228,11 +234,11 @@ public class LocationManager : MonoBehaviour
         {
             if (_messageDisplayed)
             {
-                NotificationService.DisplayOnTop($"");
+                NotificationService.HideToast();
                 _messageDisplayed = false;
             }
             IsTracking = true;
-            Location = new WorldCoordinates((float)pose.Latitude, (float)pose.Longitude, (float)pose.Altitude);
+            Location = new WorldCoordinates((float)pose.Latitude, (float)pose.Longitude, (float)pose.Altitude-45);
             Heading = pose.EunRotation;
 
             if (_initialHeading == null)
@@ -241,7 +247,11 @@ public class LocationManager : MonoBehaviour
                 _initialHeading = pose.EunRotation;
             }
             var so = gameObject.transform.GetChild(0);
-            DisplayOnDebug($"{_initialHeading}\n{_initialRotation}\n({Location.Latitude}, {Location.Longitude}, {Location.Altitude})\n{Heading}\n({so.position.x:0.####}, {so.position.y:0.####}, {so.position.z:0.####})\n{so.rotation}");
+            //NotificationService.DebugToastLong($"{_initialHeading.Value.eulerAngles.y}\n{_initialRotation.Value.eulerAngles.y}\n({Location.Latitude:0.####}, {Location.Longitude:0.####}, {Location.Altitude:0.####})\n{Heading.eulerAngles.y}\n({so.position.x:0.####}, {so.position.y:0.####}, {so.position.z:0.####})\n{so.rotation.eulerAngles.y}");
+            NotificationService.DebugToastLong($"{Location}\n" +
+                $"N: {Heading.eulerAngles.y} - {so.eulerAngles.y}\n" +
+                $"{so.transform.position}\n" +
+                $"{gameObject.transform.position}");
         }
     }
 
@@ -297,11 +307,5 @@ public class LocationManager : MonoBehaviour
                 break;
         }
         return true;
-    }
-
-    private void DisplayOnDebug(string txt)
-    {
-        if (isDebugging)
-            NotificationService.DisplayOnTop(txt);
     }
 }

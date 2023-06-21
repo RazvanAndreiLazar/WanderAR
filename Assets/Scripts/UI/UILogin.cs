@@ -116,12 +116,18 @@ public class UILogin : MonoBehaviour
         if (!Regex.IsMatch(loginPasswordInputField.text, @"^[^(){}[\]|`¬¦!""£$%^&*""<>:;#~_\-\+=,@]+$"))
             throw new System.Exception("Password cannot contain special characters: (){}[]|`¬¦! \"£$% ^&*<>:;#~_-+=,@");
 
+        NotificationService.ShowLoadingScreen();
+
         StartCoroutine(_authenticationService.Login(loginEmailInputField.text, loginPasswordInputField.text, 
             () => {
+                NotificationService.HideLoadingScreen();
                 AppState.UserState = UserState.Logged;
                 SceneManager.LoadScene(AppScenes.MENU);
             },
-            (err) => SetErrorText(GetErrorString(err))
+            err => {
+                NotificationService.HideLoadingScreen();
+                SetErrorText(GetErrorString(err));
+            }
         ));
     }
 
@@ -134,11 +140,19 @@ public class UILogin : MonoBehaviour
 
     public void GetLoggedUser()
     {
+        NotificationService.ShowLoadingScreen();
         StartCoroutine(_authenticationService.GetLoggedUser(
             () => {
+                NotificationService.HideLoadingScreen();
                 AppState.UserState = UserState.Logged;
                 SceneManager.LoadScene(AppScenes.MENU);
-        }));
+            },
+            err =>
+            {
+                NotificationService.HideLoadingScreen();
+                SetErrorText("Cannot validate token, log in again!");
+            }
+            ));
     }
 
     public void Register()
@@ -150,9 +164,19 @@ public class UILogin : MonoBehaviour
         if (!Regex.IsMatch(registrePasswordInputField.text, @"^[^(){}[\]|`¬¦!""£$%^&*""<>:;#~_\-\+=,@]+$"))
             throw new System.Exception("Password cannot contain special characters: (){}[]|`¬¦! \"£$% ^&*<>:;#~_-+=,@");
 
+        NotificationService.ShowLoadingScreen();
+
         StartCoroutine(_authenticationService.Register(loginEmailInputField.text, loginPasswordInputField.text,
-            () => SwitchToLogin(),
-            (err) => SetErrorText(GetErrorString(err))
+            () => {
+                SwitchToLogin();
+                NotificationService.HideLoadingScreen();
+                NotificationService.AddToast("User registered successfully");
+            },
+            (err) =>
+            {
+                NotificationService.HideLoadingScreen(); 
+                SetErrorText(GetErrorString(err));
+            }
         ));
     }
 

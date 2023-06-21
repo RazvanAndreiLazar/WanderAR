@@ -1,4 +1,5 @@
 using Assets.Scripts.Domain;
+using Assets.Scripts.Utils;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,7 @@ using UnityEngine;
 public class AllAtOnceNav : NavBase 
 {
     private bool positioned = false;
+    private GameObject actualCamera => camera.transform.GetChild(0).gameObject;
 
     protected override void NavigationSetup()
     {
@@ -24,14 +26,23 @@ public class AllAtOnceNav : NavBase
         if (!LocationManager.IsTracking)
         {
             positioned = false;
+            landmarkObjects.ForEach(l => l.Show());
             return;
         }
 
         if (!positioned)
         {
             var cameraPosition = LocationManager.Location;
-            landmarkObjects.ForEach(l => { l.Show(); PositionLandmarkObject(cameraPosition, l); });
+            landmarkObjects.ForEach(l => { 
+                l.Show(); 
+                PositionLandmarkObject(cameraPosition, l); 
+            });
             positioned = true;
         }
+
+        if (Mathf.Abs(PositioningUtils.AngleDiff(
+            actualCamera.transform.eulerAngles.y, 
+            LocationManager.Heading.eulerAngles.y)) > 5)
+            PositioningUtils.AdjustRotation(camera);
     }
 }

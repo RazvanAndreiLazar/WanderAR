@@ -108,6 +108,16 @@ public class UIAddLandmarkToRoute : MonoBehaviour
         prevPageButton.onClick.AddListener(PrevPage);
     }
 
+    private void OnEnable()
+    {
+        Input.location.Start();
+    }
+    
+    private void OnDisable()
+    {
+        Input.location.Stop();
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -175,8 +185,12 @@ public class UIAddLandmarkToRoute : MonoBehaviour
 
     private IEnumerator ManipulateList(bool globalLandmarks, bool ownLandmarks)
     {
+        NotificationService.ShowLoadingScreen();
         if (AppState.UserState == UserState.None)
+        {
+            NotificationService.HideLoadingScreen();
             yield break;
+        }
 
         if (AppState.UserState == UserState.Guest)
         {
@@ -209,15 +223,20 @@ public class UIAddLandmarkToRoute : MonoBehaviour
 
     private void UpdateListOfLandmarks(IEnumerable<NoModelLandmarkDTO> landmarks)
     {
+        NotificationService.HideLoadingScreen();
+
+        var loc = LocationManager.Location == null ? new (Input.location.lastData.latitude, Input.location.lastData.longitude, Input.location.lastData.altitude) : LocationManager.Location;
+
         _landmarkList = new List<NoModelLandmarkDTO>(landmarks).ConvertAll(
             l => {
                 var lmk = Landmark.FromNoModelLandmarkDTO(l);
                 return new LandmarkWithDistance
                 {
                     Landmark = lmk,
-                    Distance = CoordinatesUtils.DistanceBetweenPoints(lmk.Coordinates, LocationManager.Location)
+                    Distance = CoordinatesUtils.DistanceBetweenPoints(lmk.Coordinates, loc)
                 };
             });
+
         lastDistanceUpdate = Time.time;
 
         OnSearchTextChanged(searchbar.GetComponent<Searchbar>().SearchText);
@@ -231,6 +250,8 @@ public class UIAddLandmarkToRoute : MonoBehaviour
 
     private void DisplayError(ErrorDTO error)
     {
+        UpdateListOfLandmarks(new List<NoModelLandmarkDTO>());
+        // NotificationService.HideLoadingScreen();
         ErrorUtils.DisplayError(error);
     }
 

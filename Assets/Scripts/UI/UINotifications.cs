@@ -8,41 +8,59 @@ public class UINotifications : MonoBehaviour
 {
     public DialogModal dialogModal;
     public NotificationToast notificationToast;
+    public GameObject loadingScreen;
+
+    private bool isDisplayingLoadingScreen;
 
     private bool isDisplayingDialog;
-    private bool timerReset;
+
+    Coroutine activeToastCoroutine = null;
 
     // Start is called before the first frame update
     void Awake()
     {
-        isDisplayingDialog = false;
-        dialogModal.gameObject.SetActive(false);
+        isDisplayingLoadingScreen = false;
 
-        timerReset = false;
-        notificationToast.gameObject.SetActive(false);
-        NotificationService.ListenDisplayOnTopEvent(
-            toast =>
-            {
-                if (this == null) return;
+        if (dialogModal != null)
+        {
+            isDisplayingDialog = false;
+            dialogModal.gameObject.SetActive(false);
+        }
 
-                if (!gameObject.activeSelf)
-                    return;
+        if (notificationToast != null)
+        {
+            notificationToast.gameObject.SetActive(false);
+            NotificationService.ListenDisplayOnTopEvent(
+                toast =>
+                {
+                    if (this == null) return;
 
-                timerReset = true;
-                notificationToast.Text = toast.Text;
-                notificationToast.gameObject.SetActive(true);
-            });
+                    if (!gameObject.activeSelf)
+                        return;
+
+                    if (activeToastCoroutine != null)
+                    {
+                        StopCoroutine(activeToastCoroutine);
+                        activeToastCoroutine = null;
+                    }
+
+                    if (toast.Text == "")
+                    {
+                        notificationToast.gameObject.SetActive(false);
+                        return;
+                    }
+
+                    activeToastCoroutine = StartCoroutine(DisplayToastNow(toast.Text, toast.Duration));
+                });
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!NotificationService.IsDialogQueueEmpty && !isDisplayingDialog)
-        {
-            DisplayNextDialog();
-        }
-        if (!NotificationService.IsToastQueueEmpty && notificationToast.gameObject.activeSelf == false)
-            StartCoroutine(DisplayNextToast());
+        if (dialogModal != null) DialogUpdateAction();
+        if (notificationToast != null) ToastUpdateAction();
+        if (loadingScreen != null) LoadingScreenUpdateAction();
     }
 
     private void DisplayNextDialog()
@@ -74,13 +92,34 @@ public class UINotifications : MonoBehaviour
         notificationToast.Text = toast.Text;
         notificationToast.gameObject.SetActive(true);
 
-        while (true)
-        {
-            timerReset = false;
-            yield return new WaitForSeconds(toast.Duration);
+        yield return new WaitForSeconds(toast.Duration);
 
-            if (!timerReset)
-                yield break;
-        }
+        notificationToast.gameObject.SetActive(false);
+    }
+
+    public IEnumerator DisplayToastNow(string text, float duration)
+    {
+        notificationToast.Text = text;
+        notificationToast.gameObject.SetActive(true);
+
+        yield return new WaitForSeconds(duration);
+
+        notificationToast.gameObject.SetActive(false);
+    }
+
+    private void DialogUpdateAction()
+    {
+        if (!NotificationService.IsDialogQueueEmpty && !isDisplayingDialog)
+            DisplayNextDialog();
+    }
+    private void ToastUpdateAction()
+    {
+        if (!NotificationService.IsToastQueueEmpty && notificationToast.gameObject.activeSelf == false)
+            StartCoroutine(DisplayNextToast());
+    }
+    private void LoadingScreenUpdateAction()
+    {
+        if (isDisplayingLoadingScreen && !NotificationService.LoadingScreen) { loadingScreen.SetActive(false); isDisplayingLoadingScreen = false; }
+        if (!isDisplayingLoadingScreen && NotificationService.LoadingScreen) { loadingScreen.SetActive(true); isDisplayingLoadingScreen = true; }
     }
 }

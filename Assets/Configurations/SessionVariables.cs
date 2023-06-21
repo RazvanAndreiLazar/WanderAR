@@ -12,11 +12,13 @@ public static class SessionVariables
     private const string PHONE_IP = "192.168.124.191";
     private const string DORM_PUB_IP = "10.152.0.80";
     private const string DORM_PRIV_IP = "192.168.0.193";
+    private const string VII_IP = "192.168.1.12";
 
-    private const string IP = DORM_PUB_IP;
+    private const string IP = VII_IP;
     private const string PORT = "80";
 
 #if UNITY_EDITOR
+    //private const string REMOTE_SERVER_URL = "https://localhost:44348/api";
     private const string REMOTE_SERVER_URL = "http://www.wanderar.com/api";
 #else
     private const string REMOTE_SERVER_URL = "http://" + IP + ":" + PORT + "/api";
@@ -53,6 +55,8 @@ public static class SessionVariables
             return _sessionToken; 
         } 
     }
+
+    public static bool IsDebugging { get; set; } = true;
 
     public static User LoggedUser { get; set; } = null;
 

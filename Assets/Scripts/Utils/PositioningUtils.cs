@@ -25,7 +25,42 @@ namespace Assets.Scripts.Utils
 
             var phoneYaw = LocationManager.Heading.eulerAngles.y;
 
-            sessionOriginObj.transform.rotation = Quaternion.Euler(0, phoneYaw - cameraYawOffset, 0);
+            //var rotation = 0f;
+            //if (phoneYaw > cameraYaw)
+            //{
+            //    if (phoneYaw - cameraYaw < 180) rotation = phoneYaw - cameraYaw;
+            //    else rotation = cameraYaw - phoneYaw;
+            //}
+
+            sessionOriginObj.transform.Rotate(Vector3.up, AngleDiff(cameraYaw, phoneYaw));
+            //sessionOriginObj.transform.rotation = Quaternion.Euler(0, phoneYaw - cameraYawOffset, 0);
+        }
+
+        /// <summary>
+        /// Computes the angle difference between a1 and a2 (reduced to a circle - 0=360)
+        /// how much a1 needs to rotate to match a2 (positive is clockwise, negative is anti-clockwise)
+        /// </summary>
+        /// <param name="a1"></param>
+        /// <param name="a2"></param>
+        /// <returns></returns>
+        public static float AngleDiff(float a1, float a2)
+        {
+            var oppositeA1 = a1 < 180 ? a1 + 180 : a1 - 180;
+            
+            if (a1 < 180)
+            {
+                // right rotation
+                if (a2 < oppositeA1) return a2 - a1;
+                // left rotation
+                if (a2 <= a1) return a2 - a1;
+                return a2 - (360 + a1);
+            }
+
+            // right rotation
+            if (a2 >= a1) return a2 - a1;
+            if (a2 < oppositeA1) return (360 + a2) - a1;
+            // left rotation
+            return a2 - a1;
         }
 
         public static Vector3 GetPositioningVectorFromCamera(WorldCoordinates cameraCoords, WorldCoordinates landmarkCoords)

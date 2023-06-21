@@ -53,14 +53,15 @@ namespace Assets.Scripts.Services
             );
         }
 
-        public IEnumerator GetLoggedUser(Action callback)
+        public IEnumerator GetLoggedUser(Action callback, Action<ErrorDTO> errorCallback)
         {
             yield return WebUtils.Get<User>($"/user", SessionVariables.SessionToken,
                 (user) =>
                 {
                     SessionVariables.LoggedUser = user;
                     callback();
-                }
+                },
+                errorCallback
             );
         }
 

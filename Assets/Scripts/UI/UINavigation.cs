@@ -91,7 +91,8 @@ public class UINavigation : MonoBehaviour
     {
         while (true)
         {
-            distanceTxt.text = CoordinatesUtils.DistanceBetweenPoints(LocationManager.Location, trackedLandmark.Coordinates).ToString();
+            var dist = CoordinatesUtils.DistanceBetweenPoints(LocationManager.Location, trackedLandmark.Coordinates);
+            distanceTxt.text = dist < 10000 ? $"{Mathf.Floor(dist)}m" : $"{Mathf.Floor(dist / 1000)}km";
 
             yield return new WaitForSeconds(1);
         }
@@ -101,7 +102,8 @@ public class UINavigation : MonoBehaviour
     {
         while (true)
         {
-            routeDistanceTxt.text = CoordinatesUtils.DistanceBetweenPoints(LocationManager.Location, trackedLandmark.Coordinates).ToString();
+            var dist = CoordinatesUtils.DistanceBetweenPoints(LocationManager.Location, trackedLandmark.Coordinates);
+            routeDistanceTxt.text = dist < 10000 ? $"{Mathf.Floor(dist)}m" : $"{Mathf.Floor(dist / 1000)}km";
 
             Debug.Log(routeDistanceTxt.text);
 
