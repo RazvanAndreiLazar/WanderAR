@@ -533,6 +533,7 @@ UnityEngine.LineRenderer::SetPosition_Injected
 UnityEngine.LineRenderer::set_positionCount
 UnityEngine.LineRenderer::set_widthMultiplier
 UnityEngine.LocationService::IsServiceEnabledByUser
+UnityEngine.LocationService::GetLastLocation_Injected
 UnityEngine.LocationService::SetDesiredAccuracy
 UnityEngine.LocationService::SetDistanceFilter
 UnityEngine.LocationService::StartUpdatingLocation
@@ -639,6 +640,7 @@ UnityEngine.Networking.UnityWebRequest::InternalSetRequestHeader
 UnityEngine.Networking.UnityWebRequest::SetCustomMethod
 UnityEngine.Networking.UnityWebRequest::SetDownloadHandler
 UnityEngine.Networking.UnityWebRequest::SetMethod
+UnityEngine.Networking.UnityWebRequest::SetTimeoutMsec
 UnityEngine.Networking.UnityWebRequest::SetUploadHandler
 UnityEngine.Networking.UnityWebRequest::SetUrl
 UnityEngine.Networking.UnityWebRequest::BeginWebRequest
@@ -691,8 +693,6 @@ UnityEngine.PlayerConnectionInternal::PollInternal
 UnityEngine.PlayerConnectionInternal::RegisterInternal
 UnityEngine.PlayerConnectionInternal::SendMessage
 UnityEngine.PlayerConnectionInternal::UnregisterInternal
-UnityEngine.Profiling.Profiler::BeginSampleImpl
-UnityEngine.Profiling.Profiler::EndSample
 UnityEngine.PropertyNameUtils::PropertyNameFromString_Injected
 UnityEngine.QualitySettings::get_vSyncCount
 UnityEngine.QualitySettings::set_vSyncCount
@@ -930,6 +930,7 @@ UnityEngine.Transform::get_childCount
 UnityEngine.Transform::Internal_LookAt_Injected
 UnityEngine.Transform::InverseTransformDirection_Injected
 UnityEngine.Transform::InverseTransformPoint_Injected
+UnityEngine.Transform::RotateAroundInternal_Injected
 UnityEngine.Transform::SetAsFirstSibling
 UnityEngine.Transform::SetParent
 UnityEngine.Transform::SetPositionAndRotation_Injected

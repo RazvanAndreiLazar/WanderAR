@@ -13,7 +13,7 @@ using UnityEngine.XR.ARSubsystems;
 public class LocationManager : MonoBehaviour
 {
 #if UNITY_EDITOR
-    public static WorldCoordinates Location { get; private set; } = new(46.77472f, 23.62172f, 360);
+    public static WorldCoordinates Location { get; private set; } = new(46.7732f, 23.62061f, 330);
 #else
     public static WorldCoordinates Location { get; private set; } = null;
 #endif
@@ -27,9 +27,12 @@ public class LocationManager : MonoBehaviour
     public bool isDebugging = true;
 
     // these are used for non-android
-    public float latitude = 46.77472f;
-    public float longitude = 23.62172f;
-    public float altitude = 360;
+    //public float latitude = 46.77472f;
+    //public float longitude = 23.62172f;
+    //public float altitude = 360;
+    public float latitude = 46.7732f;
+    public float longitude = 23.62061f;
+    public float altitude = 330;
     public Vector3 heading = Vector3.zero;
 
     private bool _enablingGeospatial = false;
@@ -247,11 +250,13 @@ public class LocationManager : MonoBehaviour
                 _initialHeading = pose.EunRotation;
             }
             var so = gameObject.transform.GetChild(0);
-            //NotificationService.DebugToastLong($"{_initialHeading.Value.eulerAngles.y}\n{_initialRotation.Value.eulerAngles.y}\n({Location.Latitude:0.####}, {Location.Longitude:0.####}, {Location.Altitude:0.####})\n{Heading.eulerAngles.y}\n({so.position.x:0.####}, {so.position.y:0.####}, {so.position.z:0.####})\n{so.rotation.eulerAngles.y}");
-            NotificationService.DebugToastLong($"{Location}\n" +
-                $"N: {Heading.eulerAngles.y} - {so.eulerAngles.y}\n" +
-                $"{so.transform.position}\n" +
-                $"{gameObject.transform.position}");
+
+            NotificationService.DebugToastLong($"Lat/Lon/Alt: {Location}\n" +
+                $"Orientation: {Heading.eulerAngles.y}");
+            //NotificationService.DebugToastLong($"{Location}\n" +
+            //    $"N: {Heading.eulerAngles.y} - {so.eulerAngles.y}\n" +
+            //    $"{so.transform.position}\n" +
+            //    $"{gameObject.transform.position}");
         }
     }
 

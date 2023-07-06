@@ -42,17 +42,13 @@ public class UILogin : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        errorText.text = "1";
         AppState.UserState = UserState.None;
-        errorText.text = "2";
 
         if (SessionVariables.SessionToken != "")
         {
-            errorText.text = "3";
             GetLoggedUser();
         }
 
-        errorText.text = "5";
         SwitchToLogin();
         errorText.text = "";
 
@@ -89,19 +85,6 @@ public class UILogin : MonoBehaviour
     {
         errorText.text = _errorText;
     }
-
-    //public void TryCatchWrapper(Func<IEnumerator> routine)
-    //{
-    //    try
-    //    {
-    //        StartCoroutine(routine());
-    //    }
-    //    catch (System.Exception e)
-    //    {
-
-    //        errorText.text = e.Message;
-    //    }
-    //}
 
     private string GetErrorString(ErrorDTO error)
     {
@@ -166,7 +149,7 @@ public class UILogin : MonoBehaviour
 
         NotificationService.ShowLoadingScreen();
 
-        StartCoroutine(_authenticationService.Register(loginEmailInputField.text, loginPasswordInputField.text,
+        StartCoroutine(_authenticationService.Register(registreEmailInputField.text, registrePasswordInputField.text,
             () => {
                 SwitchToLogin();
                 NotificationService.HideLoadingScreen();

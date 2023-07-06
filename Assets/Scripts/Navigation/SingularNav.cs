@@ -54,7 +54,7 @@ public class SingularNav : NavBase
             //ErrorUtils.DisplayError($"Session origin rotation: {camera.transform.rotation}\ncamera rotation: {camera.transform.GetChild(0).rotation}\n{actualCamera.transform.localEulerAngles.y}\n" +
             //    $"{camera.transform.eulerAngles.y}-{actualCamera.transform.eulerAngles.y} = {camera.transform.eulerAngles.y - actualCamera.transform.eulerAngles.y}");
         }
-        else if (Mathf.Abs(PositioningUtils.AngleDiff(actualCamera.transform.eulerAngles.y, LocationManager.Heading.eulerAngles.y)) > 5)
+        else if (Mathf.Abs(PositioningUtils.AngleDiff(actualCamera.transform.eulerAngles.y, LocationManager.Heading.eulerAngles.y)) > SessionVariables.AngleErr)
             PositioningUtils.AdjustRotation(camera);
         //NotificationService.DisplayOnTop($"coords {LocationManager.Location}\nheading {LocationManager.Heading}\n{LocationManager.Heading.eulerAngles.y}");
     }

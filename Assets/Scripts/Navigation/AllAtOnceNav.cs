@@ -42,7 +42,7 @@ public class AllAtOnceNav : NavBase
 
         if (Mathf.Abs(PositioningUtils.AngleDiff(
             actualCamera.transform.eulerAngles.y, 
-            LocationManager.Heading.eulerAngles.y)) > 5)
+            LocationManager.Heading.eulerAngles.y)) > SessionVariables.AngleErr)
             PositioningUtils.AdjustRotation(camera);
     }
 }

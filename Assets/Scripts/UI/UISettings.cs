@@ -13,6 +13,7 @@ public class UISettings : MonoBehaviour
     public Button logoutButton;
     public TMP_Text emailText;
     public Button isDebuggingButton;
+    public TMP_InputField angleErrIF;
 
     private void SetEmailText(string email)
     {
@@ -41,7 +42,8 @@ public class UISettings : MonoBehaviour
         }
 
         logoutButton.onClick.AddListener(OnLogoutClick);
-
+        angleErrIF.text = SessionVariables.AngleErr.ToString();
+        angleErrIF.onValueChanged.AddListener(OnAngleErrorChanged);
         DisplayCheckmark();
         isDebuggingButton.onClick.AddListener(OnIsDebuggingClick);
     }
@@ -80,5 +82,12 @@ public class UISettings : MonoBehaviour
     {
         SessionVariables.IsDebugging = !SessionVariables.IsDebugging;
         DisplayCheckmark();
+    }
+
+    public void OnAngleErrorChanged(string d)
+    {
+        var val = float.Parse(d);
+        if (val > 0 && val < 10)
+            SessionVariables.AngleErr = val; 
     }
 }

@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine.SceneManagement;
 
 public class UIMenu : MonoBehaviour
@@ -27,6 +28,8 @@ public class UIMenu : MonoBehaviour
 
     private GameObject[] buttons;
     private GameObject[] pannels;
+
+    private Tabs? selectedTab = null;
 
     // Start is called before the first frame update
     void Start()
@@ -87,9 +90,34 @@ public class UIMenu : MonoBehaviour
         button.gameObject.transform.GetChild(INACTIVE_CHILD).gameObject.SetActive(false);
         button.gameObject.transform.GetChild(ACTIVE_CHILD).gameObject.SetActive(true);
 
-        HideAllPannels();
-
-        pannel.SetActive(true);
+        if (selectedTab == null || selectedTab == Tabs.SETTINGS || tab == Tabs.SETTINGS || tab == selectedTab)
+        {
+            HideAllPannels();
+            pannel.SetActive(true);
+        }
+        else
+        {
+            bool reverse = (selectedTab == Tabs.ROUTE && tab == Tabs.LANDMARK) ||
+                (selectedTab == Tabs.ROUTE && tab == Tabs.PROXY) || (selectedTab == Tabs.LANDMARK && tab == Tabs.PROXY);
+            StartCoroutine(TabTransition(tabCorespondence[selectedTab ?? Tabs.LANDMARK].Value, pannel, reverse));
+        }
+        selectedTab = tab;
+    }
+    IEnumerator TabTransition(GameObject pannelFrom, GameObject pannelTo, bool reverse = false)
+    {
+        const int WIDTH = 1080;
+        const int SPEED = 360;
+        Vector3 direction = reverse ? Vector3.left : Vector3.right;
+        pannelTo.transform.Translate(-direction * WIDTH);
+        pannelTo.SetActive(true);
+        for (int i = 1; i <= WIDTH/SPEED; i++)
+        {
+            yield return new WaitForFixedUpdate();
+            pannelFrom.transform.Translate(direction * SPEED);
+            pannelTo.transform.Translate(direction * SPEED);
+        }
+        pannelFrom.SetActive(false);
+        pannelFrom.transform.Translate(-direction * WIDTH);
     }
 
     public void SelectSettings() => Select(Tabs.SETTINGS);

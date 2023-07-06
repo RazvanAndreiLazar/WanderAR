@@ -9,12 +9,9 @@ public static class SessionVariables
 {
     private const string LOCALHOST_SERVER_URL = "https://localhost:7145/api";
 
-    private const string PHONE_IP = "192.168.124.191";
-    private const string DORM_PUB_IP = "10.152.0.80";
-    private const string DORM_PRIV_IP = "192.168.0.193";
-    private const string VII_IP = "192.168.1.12";
+    private const string PHONE_IP = "192.168.58.191";
 
-    private const string IP = VII_IP;
+    private const string IP = PHONE_IP;
     private const string PORT = "80";
 
 #if UNITY_EDITOR
@@ -24,7 +21,50 @@ public static class SessionVariables
     private const string REMOTE_SERVER_URL = "http://" + IP + ":" + PORT + "/api";
 #endif
 
-    public const string SERVER_URL = REMOTE_SERVER_URL;
+
+#if UNITY_EDITOR
+    //private const string REMOTE_SERVER_URL = "https://localhost:44348/api";
+    public static string SERVER_URL => REMOTE_SERVER_URL;
+#else
+    public static string SERVER_URL => "http://" + ServerIP + ":" + PORT + "/api";
+#endif
+
+
+    private static string _serverIP = "";
+    public static string ServerIP
+    {
+        get {
+            if (_serverIP == "")
+            {
+                //if (IsDebugging)
+                //{
+                //    ServerIP = IP;
+                //    return IP;
+                //}
+                try
+                {
+                    _serverIP = File.ReadAllText(Paths.SERVER_ADDRESS_PATH);
+                }
+                catch (IOException) { }
+            }
+            return _serverIP;
+        }
+        set
+        {
+            _serverIP = value;
+
+            try
+            {
+                File.WriteAllText(Paths.SERVER_ADDRESS_PATH, value);
+
+            }
+            catch (IOException)
+            {
+                File.Create(Paths.SERVER_ADDRESS_PATH);
+                File.WriteAllText(Paths.SERVER_ADDRESS_PATH, value);
+            }
+        }
+    }
 
 
     private static string _sessionToken = "";
@@ -56,7 +96,7 @@ public static class SessionVariables
         } 
     }
 
-    public static bool IsDebugging { get; set; } = true;
+    public static bool IsDebugging { get; set; } = false;
 
     public static User LoggedUser { get; set; } = null;
 
@@ -84,4 +124,6 @@ public static class SessionVariables
 
 
     public static float ProximityRange { get; set; }
+
+    public static float AngleErr { get; set; } = 5;
 }

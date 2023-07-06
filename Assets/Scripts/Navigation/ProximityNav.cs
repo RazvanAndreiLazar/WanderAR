@@ -21,7 +21,7 @@ public class ProximityNav : NavBase
 
     protected override void NavigationSetup()
     {
-        movingCoroutineTimeout = 5f;
+        // movingCoroutineTimeout = 5f;
     }
 
     protected override void StopCleanup()
@@ -44,6 +44,7 @@ public class ProximityNav : NavBase
             {
                 foreach (var lmk in landmarks)
                 {
+                    NotificationService.DisplayOnTop(lmk.Name);
                     landmarkObjects.Add( CreateAndPositionObject(cameraCoords, Landmark.FromLandmarkDTO(lmk)) );
                 }
                 camera.transform.position = Vector3.zero;
@@ -59,14 +60,18 @@ public class ProximityNav : NavBase
 
     protected override void MoveAction()
     {
+        base.MoveAction();
+        NotificationService.DisplayOnTop((!LocationManager.IsTracking).ToString());
         if (!LocationManager.IsTracking) return;
+
+        NotificationService.DisplayOnTop(isGettingLandmarks.ToString());
 
         if (!isGettingLandmarks)
             GetProximityLandmarks();
 
         if (Mathf.Abs(PositioningUtils.AngleDiff(
             actualCamera.transform.eulerAngles.y,
-            LocationManager.Heading.eulerAngles.y)) > 5)
+            LocationManager.Heading.eulerAngles.y)) > SessionVariables.AngleErr)
             PositioningUtils.AdjustRotation(camera);
     }
     protected override void MoveCleanup() => StopCoroutine(getLandmarksCoroutine);
