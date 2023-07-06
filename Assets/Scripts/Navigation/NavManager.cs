@@ -50,13 +50,11 @@ public class NavManager : MonoBehaviour
 
     private void SetupProximityNav()
     {
-        NotificationService.DisplayOnTop(("1111").ToString());
 
         var proximityNav = gameObject.AddComponent<ProximityNav>();
         proximityNav.camera = camera;
         proximityNav.landmarkMaterial = landmarkMaterial;
         proximityNav.landmarkPlaceholder = landmarkPlaceholder;
-        NotificationService.DisplayOnTop(("222").ToString());
 
         proximityNav.StartNavigating();
         activeNavigation = proximityNav;
