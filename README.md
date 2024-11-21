@@ -1,6 +1,6 @@
 # WanderAR
 
-This is the client-side application for the [bachelor thesis: The Use of AR in Locating and Virtually Replicating Landmarks](add_link).
+This is the client-side application for the [bachelor thesis: The Use of AR in Locating and Virtually Replicating Landmarks](https://github.com/RazvanAndreiLazar/WanderAR-thesis).
 
 **Platform**: Android 9.0+
 
